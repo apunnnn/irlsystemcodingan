@@ -1,0 +1,55 @@
+{
+  "name": "irl-system",
+  "version": "2.1.2",
+  "description": "IRL SYSTEM",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder -w -p always"
+  },
+  "keywords": [],
+  "author": "apann_20",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^42.4.1",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9",
+    "express": "^5.2.1",
+    "ffmpeg-static": "^5.3.0",
+    "node-machine-id": "^1.1.12",
+    "socket.io": "^4.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apunnnn/irlsystemupdate.git"
+  },
+  "build": {
+    "appId": "com.apann.irlsystem",
+    "productName": "IRL System V2",
+    "artifactName": "IRL-System-V2-Setup-${version}.${ext}",
+    "files": [
+      "**/*",
+      "local_web/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "allowToChangeInstallationDirectory": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "apunnnn",
+        "repo": "irlsystemupdate",
+        "releaseType": "draft"
+      }
+    ]
+  }
+}

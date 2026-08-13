@@ -1,0 +1,26 @@
+# Mengabaikan folder dependency yang super berat
+node_modules/
+
+# Mengabaikan folder hasil build (.exe)
+dist/
+dist-*-unpacked/
+win-unpacked/
+*.exe
+
+# Mengabaikan file env (jika ada file password/rahasia)
+.env
+
+# Mengabaikan log error
+*.log
+npm-debug.log*
+```eof
+
+### 🚀 Cara Upload (Push) Kodingannya ke GitHub:
+
+Pastikan Mas Fajar sudah menyimpan file `.gitignore` di atas (letakkan di luar sejajar dengan `package.json`).
+
+Setelah itu, buka **Terminal di VS Code**, lalu *copy-paste* dan jalankan perintah ini satu per satu (tekan Enter untuk setiap baris):
+
+**1. Inisialisasi Git (Membuat pelacak kodingan lokal):**
+```bash
+git init
