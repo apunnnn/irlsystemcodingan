@@ -13,6 +13,25 @@ let localServer; // Menyimpan referensi server agar bisa dimatikan nanti
 // =====================================================================
 // 🚀 FUNGSI MENYALAKAN SERVER LOKAL UNTUK SUBTITLE AI (PORT 5050)
 // =====================================================================
+// Store sederhana berbasis JSON file untuk persistensi setting subtitle
+const fs = require('fs');
+const settingsFilePath = path.join(app.getPath('userData'), 'subtitle-settings.json');
+
+function loadSubtitleSettingsFromFile() {
+  try {
+    if (fs.existsSync(settingsFilePath)) {
+      return JSON.parse(fs.readFileSync(settingsFilePath, 'utf8'));
+    }
+  } catch (e) {}
+  return {};
+}
+
+function saveSubtitleSettingsToFile(settings) {
+  try {
+    fs.writeFileSync(settingsFilePath, JSON.stringify(settings, null, 2), 'utf8');
+  } catch (e) {}
+}
+
 function startLocalServer() {
   const localApp = express();
   localServer = http.createServer(localApp);
@@ -21,7 +40,7 @@ function startLocalServer() {
   });
 
   const PORT = 5050;
-  const subtitleSettings = {};
+  const subtitleSettings = loadSubtitleSettingsFromFile();
 
   // Menyajikan file subtitle.html dari folder 'local_web'
   localApp.use(express.static(path.join(__dirname, 'local_web')));
@@ -50,6 +69,7 @@ function startLocalServer() {
     socket.on('save_settings', (data) => {
       const { streamId, settings } = data;
       subtitleSettings[streamId] = settings;
+      saveSubtitleSettingsToFile(subtitleSettings);
       io.to(`sub_${streamId}`).emit('update_settings', settings);
     });
   });

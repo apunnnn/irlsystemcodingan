@@ -3,907 +3,948 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRLSubtitle - IRL System</title>
+    <title>IRL Subtitle Pro - Dashboard</title>
     
-    <!-- Load Tailwind CSS & FontAwesome 6 & Socket.IO & SweetAlert -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Bebas+Neue&family=Caveat:wght@400;700&family=Cinzel:wght@400;700;900&family=Fredoka:wght@700&family=Inter:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Kanit:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Montserrat:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Oswald:wght@400;700&family=Pacifico&family=Permanent+Marker&family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Press+Start+2P&family=Righteous&family=Roboto:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Space+Grotesk:wght@400;700&family=Syne:wght@400;700;800&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Google Fonts Lengkap -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600&family=Fira+Code:wght@500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Lobster&family=Montserrat:wght@400;700;900&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@400;600;700;800&family=Press+Start+2P&family=Righteous&family=Roboto:wght@400;700&family=Russo+One&display=swap" rel="stylesheet">
-
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              brand: { 500: '#6366f1', 600: '#4f46e5' }, 
-              dark: { 900: '#09090b', 800: '#18181b', 700: '#27272a' }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' },
+                        dark: { 800: '#18181b', 900: '#09090b', 950: '#040405' }
+                    }
+                }
             }
-          }
         }
-      }
     </script>
-
+    
+    <!-- Socket.io -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; }
         
         .glass-panel {
-          background: rgba(24, 24, 27, 0.4);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        /* Styling Slider Input */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #6366f1; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #3f3f46; border-radius: 2px; }
-        
-        /* Styling Color Picker */
-        input[type="color"] { -webkit-appearance: none; border: none; width: 100%; height: 36px; border-radius: 0.5rem; cursor: pointer; padding: 0; background: none; }
-        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type="color"]::-webkit-color-swatch { border: 2px solid #3f3f46; border-radius: 0.5rem; }
-
-        /* Background Preview Kotak-kotak */
-        .bg-grid-pattern {
-            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        /* -------------------------------------------------------------
-           INTI STYLING TEKS SUBTITLE (BERLAKU DI OBS & PREVIEW)
-        ------------------------------------------------------------- */
-        /* Styling Toast Alert */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #18181b;
-            color: #fff;
-            padding: 12px 20px;
-            border-radius: 12px;
-            border-left: 4px solid #10b981;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-right: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            font-size: 13px;
-        }
-
-        #previewSubtitleBox, #obsSubtitleBox { 
-            position: absolute; 
-            z-index: 10; 
-            transform: translate(-50%, -50%); /* Titik tengah tepat di kursor/persentase */
-            width: 90%; 
-            display: flex;
-            justify-content: center;
-        }
-        #previewSubtitleBox { cursor: grab; }
-        #previewSubtitleBox:active { cursor: grabbing; }
-        
-        .subtitle-text { 
-            text-align: center; 
-            padding: 10px 20px; 
-            border-radius: 12px; 
-            margin: 0 auto;
-            width: max-content;
-            max-width: 100%;
-            word-wrap: break-word;
-            line-height: 1.4;
-            transition: all 0.1s ease-out;
-        }
-
-        /* Mode Cinematic memaksakan background transparan gelap */
-        .effect-cinematic {
-            background-color: rgba(0, 0, 0, 0.75) !important;
-            border-radius: 4px;
+            background: rgba(24, 24, 27, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 8px; }
-        
-        div:where(.swal2-container) div:where(.swal2-popup) {
-          background: #18181b !important;
-          border: 1px solid rgba(255, 255, 255, 0.05) !important;
-          color: #e4e4e7 !important;
-          border-radius: 16px !important;
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #6366f1; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
         }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #27272a; border-radius: 2px; }
+
+        /* ==========================================
+           DYNAMIC LAYOUT CSS (BENTUK VISUAL TEKS)
+        ========================================== */
+        
+        .obs-mode { background-color: transparent !important; overflow: hidden; }
+        .subtitle-text { transition: opacity 0.3s ease-out; opacity: 0; line-height: 1.4; }
+        .subtitle-show { opacity: 1 !important; }
+
+        /* 1. AESTHETIC VLOG STICKER */
+        .layout-sticker { top: 50% !important; transform: translateY(-50%); display: flex; justify-content: center; width: 100%; }
+        .layout-sticker .subtitle-text { 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            background: transparent !important; border: none !important; max-width: 85%; 
+        }
+        .layout-sticker .word-span { 
+            position: relative; display: block; font-weight: 900 !important; 
+            color: #513620 !important; white-space: nowrap; z-index: 1; line-height: 0.9;
+            text-shadow: 
+                4px 4px 0 var(--s-col), -4px -4px 0 var(--s-col), 4px -4px 0 var(--s-col), -4px 4px 0 var(--s-col),
+                4px 0 0 var(--s-col), -4px 0 0 var(--s-col), 0 4px 0 var(--s-col), 0 -4px 0 var(--s-col),
+                8px 8px 0 var(--s-col), -8px -8px 0 var(--s-col), 8px -8px 0 var(--s-col), -8px 8px 0 var(--s-col),
+                8px 0 0 var(--s-col), -8px 0 0 var(--s-col), 0 8px 0 var(--s-col), 0 -8px 0 var(--s-col),
+                10px 15px 20px rgba(0,0,0,0.4); 
+            -webkit-text-stroke: 0px !important;
+        }
+        .layout-sticker .word-top { font-size: 4em; rotate: -4deg; --s-col: #ffffff; z-index: 1; margin-bottom: -15px; }
+        .layout-sticker .word-highlight { font-size: 7.5em; rotate: -1deg; --s-col: #ffde00; z-index: 3; margin: -20px 0; }
+        .layout-sticker .word-bottom { font-size: 4em; rotate: 3deg; --s-col: #ffffff; z-index: 2; margin-top: -15px; }
+        .layout-sticker .word-top::after { content: '\f08d'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: -10px; right: -25px; rotate: 25deg; color: #e11d48; font-size: 0.4em; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); -webkit-text-stroke: 1px #881337; }
+        .layout-sticker .word-highlight::after { content: '\f08d'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 15px; right: 5%; rotate: 45deg; color: #e11d48; font-size: 0.25em; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); -webkit-text-stroke: 1px #881337; }
+        .layout-sticker .word-top::before { content: '★'; position: absolute; left: -35px; bottom: -15px; color: #3b82f6; font-size: 0.5em; text-shadow: none; -webkit-text-stroke: 0; rotate: -15deg; }
+        .layout-sticker .word-bottom::before { content: '★'; position: absolute; right: -30px; top: -10px; color: #22c55e; font-size: 0.6em; text-shadow: none; -webkit-text-stroke: 0; rotate: 20deg; }
+        @keyframes stickerPop { 0% { transform: scale(0.3) translateY(30px); opacity: 0; } 60% { transform: scale(1.1) translateY(-5px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+
+        /* 2. SHORTS / REELS STYLE */
+        .layout-shorts { top: 50% !important; transform: translateY(-50%); display: flex; justify-content: center; width: 100%; }
+        .layout-shorts .subtitle-text { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; background: transparent !important; border: none !important; }
+        .layout-shorts .word-span { display: inline-block; font-size: 1.5em; rotate: -3deg; font-weight: 900 !important; }
+        .layout-shorts .word-highlight { color: var(--highlight-color) !important; rotate: 2deg; }
+        @keyframes shortsPop { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* 3. BERITA TV */
+        .layout-news { top: auto !important; bottom: 8% !important; width: 100%; padding: 0 !important; left: 0 !important; justify-content: flex-start !important; }
+        .layout-news .subtitle-text { display: flex !important; align-items: center; width: 100%; background: rgba(0, 0, 0, 0.85) !important; border-top: 5px solid var(--highlight-color); border-bottom: 5px solid var(--highlight-color); padding: 0 !important; border-radius: 0 !important; }
+        .layout-news .news-badge { background: var(--highlight-color); color: #000; padding: 15px 40px; font-weight: 900; font-size: 0.8em; letter-spacing: 2px; text-transform: uppercase; animation: pulseLive 1.5s infinite; }
+        .layout-news .news-content { padding: 0 40px; font-weight: bold; white-space: nowrap; overflow: hidden; text-shadow: none !important; -webkit-text-stroke: 0px !important; }
+        @keyframes pulseLive { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        /* 4. HACKER TERMINAL */
+        .layout-terminal { top: 15% !important; align-items: flex-start; }
+        .layout-terminal .subtitle-text { font-family: 'Courier New', Courier, monospace !important; background: rgba(0, 15, 0, 0.9) !important; border: 2px solid var(--highlight-color) !important; padding: 30px !important; border-radius: 8px !important; color: var(--highlight-color) !important; text-shadow: 0 0 10px var(--highlight-color) !important; -webkit-text-stroke: 0px !important; text-transform: lowercase !important; max-width: 80%; text-align: left; box-shadow: 0 0 30px rgba(0, 255, 0, 0.2); }
+        .layout-terminal .terminal-cursor { display: inline-block; width: 15px; height: 1em; background: var(--highlight-color); animation: blinkCursor 1s infinite; vertical-align: middle; margin-left: 10px; }
+        @keyframes blinkCursor { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+        /* 5. NEON SIGN */
+        .layout-neon .subtitle-text { 
+            color: #ffffff !important; text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--highlight-color), 0 0 40px var(--highlight-color), 0 0 80px var(--highlight-color), 0 0 120px var(--highlight-color) !important;
+            -webkit-text-stroke: 0px !important; background: transparent !important; animation: neonFlicker 3s infinite alternate; padding: 10px !important;
+        }
+        @keyframes neonFlicker { 0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 5px #fff, 0 0 20px var(--highlight-color), 0 0 40px var(--highlight-color), 0 0 80px var(--highlight-color); } 20%, 24%, 55% { opacity: 0.4; text-shadow: none; } }
+
+        /* 6. PESAN CHAT */
+        .layout-chat { align-items: flex-end; justify-content: flex-end !important; right: 8% !important; bottom: 15% !important; top: auto !important; left: auto !important; }
+        .layout-chat .subtitle-text {
+            background: var(--highlight-color) !important; color: var(--text-color) !important;
+            padding: 18px 30px !important; border-radius: 30px 30px 5px 30px !important; 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4); font-weight: 600 !important; max-width: 60%;
+            text-align: left; -webkit-text-stroke: 0px !important; text-shadow: none !important;
+        }
+
+        /* 7. KOTAK DIALOG RPG */
+        .layout-rpg { top: auto !important; bottom: 5% !important; display: flex; justify-content: center; width: 100%; left: 0 !important; }
+        .layout-rpg .subtitle-text {
+            width: 85% !important; max-width: 85% !important;
+            background: linear-gradient(135deg, #020617 0%, #1e3a8a 100%) !important; 
+            border: 5px solid #ffffff !important; border-radius: 15px !important;
+            padding: 35px 45px !important; text-align: left;
+            font-family: 'Press Start 2P', monospace !important; line-height: 2 !important;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.6); -webkit-text-stroke: 0px !important; text-shadow: none !important;
+            position: relative; color: #fff !important;
+        }
+        .layout-rpg .subtitle-text::after {
+            content: '▼'; position: absolute; right: 30px; bottom: 20px;
+            animation: blinkCursor 1s infinite; font-size: 1.2em; color: #fff; text-shadow: none;
+        }
+
+        /* 8. RETRO VHS */
+        .layout-vhs { top: auto !important; bottom: 10% !important; left: 8% !important; justify-content: flex-start !important; }
+        .layout-vhs .subtitle-text {
+            font-family: 'VT323', monospace !important; font-size: 4em !important;
+            color: #ffffff !important; text-transform: uppercase !important;
+            text-shadow: 4px 2px 0px rgba(255,0,0,0.5), -4px -2px 0px rgba(0,255,255,0.5) !important; 
+            background: transparent !important; border: none !important; -webkit-text-stroke: 0px !important;
+            text-align: left;
+        }
+        .layout-vhs .subtitle-text::before {
+            content: '▶ PLAY'; display: block; margin-bottom: 20px; font-size: 0.8em;
+            text-shadow: none; animation: pulseLive 2s infinite; letter-spacing: 5px;
+        }
+
+        /* STANDAR SUBTITLE */
+        .layout-subtitle .subtitle-text { display: inline-block; text-align: center; }
+
+        @keyframes blinkCursor { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+        @keyframes pulseLive { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .bg-glow { position: fixed; top: -20%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
     </style>
 </head>
-<body class="text-zinc-300 antialiased selection:bg-brand-500 selection:text-white bg-dark-900">
+<body class="bg-dark-900 text-zinc-300 min-h-screen selection:bg-brand-500/30">
 
-    <!-- Efek Latar Belakang Sama Dengan Main App -->
-    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-600/10 blur-[120px] pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-600/10 blur-[120px] pointer-events-none"></div>
+    <div class="bg-glow" id="bgGlow"></div>
 
-    <!-- WAJAH 1: MODE OBS (TRANSPARAN HANYA MUNCUL TEKS) -->
-    <div id="obsModeContainer" class="hidden absolute inset-0 w-full h-full pointer-events-none">
-        <div id="obsSubtitleBox">
-            <div id="obsSubtitleText" class="subtitle-text"></div>
-        </div>
-    </div>
-
-    <!-- WAJAH 2: MODE CONTROL PANEL (DIBUKA DI CHROME OLEH KLIEN) -->
-    <div id="controlModeContainer" class="hidden p-3 w-full max-w-[98%] mx-auto h-screen flex flex-col relative z-10 overflow-hidden box-border">
-        <div id="toast-container"></div>
-
-        <!-- HEADER -->
-        <div class="mb-2 pb-2 border-b border-zinc-800/80 flex items-center justify-between gap-2 shrink-0">
-            <div>
-                <h1 class="text-base font-bold text-white flex items-center gap-2 tracking-tight">
-                    <i class="fa-solid fa-closed-captioning text-brand-500"></i>
-                    IRLSubtitle Control Panel
-                </h1>
+    <!-- ==========================================
+         MODE 1: CONTROL PANEL
+    =========================================== -->
+    <div id="controlPanel" class="p-4 md:p-6 max-w-[1600px] mx-auto flex flex-col gap-6">
+        
+        <!-- HEADER (DIPERBARUI MENJADI IRL SUBTITLE PRO) -->
+        <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                    <i class="fa-solid fa-shapes text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide">IRL Subtitle <span class="text-[10px] bg-brand-600 text-white px-1.5 py-0.5 rounded-full ml-1 align-middle">PRO</span></h1>
+                    <p class="text-xs text-zinc-500">Control Subtitle</p>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button type="button" onclick="copyObsUrl()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-300 transition-all flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-copy text-indigo-400"></i> Copy OBS URL
-                </button>
-                <button type="button" onclick="showGuideModal()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 transition-all flex items-center gap-1 cursor-pointer">
-                    <i class="fa-solid fa-circle-question"></i> Petunjuk
-                </button>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-dark-800 border border-zinc-800 text-zinc-400">
-                    <i class="fa-solid fa-circle text-[7px] text-emerald-400 animate-pulse"></i> OBS Active
-                </span>
-            </div>
+            <button onclick="copyObsUrl()" id="btnCopyObs" class="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 px-4 py-2 rounded-xl font-medium text-xs flex items-center gap-2 transition-all shadow-md">
+                <i class="fa-solid fa-copy text-brand-400"></i> Copy URL OBS
+            </button>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-grow min-h-0 overflow-hidden">
+        
+        <!-- LAYOUT 2 KOLOM -->
+        <div class="flex flex-col lg:flex-row gap-6 items-start pb-20">
             
-            <!-- PANEL KIRI: PENGATURAN KUSTOMISASI & TOMBOL MIC -->
-            <div class="lg:col-span-5 flex flex-col h-full min-h-0 overflow-hidden space-y-2">
+            <!-- KOLOM KIRI: SETTINGS -->
+            <div class="w-full lg:w-5/12 flex flex-col gap-4">
                 
-                <!-- TOMBOL START AI MIC -->
-                <div class="bg-dark-800/80 rounded-xl p-2.5 border border-indigo-500/20 shadow-md shrink-0">
-                    <button id="btnStartAI" onclick="toggleAI()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-3 rounded-lg shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
-                        <i class="fa-solid fa-microphone"></i>
-                        <span id="aiBtnText">Mulai Subtitle (Mic)</span>
-                    </button>
-                    <p id="aiStatusText" class="text-[11px] text-zinc-500 mt-1 text-center truncate">Status: Subtitle nonaktif.</p>
-                </div>
-
-                <!-- BOX PENGATURAN DESAIN -->
-                <div class="glass-panel rounded-xl p-3 flex-grow min-h-0 overflow-y-auto custom-scrollbar">
-                    <div class="space-y-2 text-xs">
-                        
-                        <!-- Pilihan Bahasa & Font dasar -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 border-b border-zinc-800/80 pb-4 mb-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-brand-500 mb-1.5 uppercase tracking-wider">Bahasa Subtitle</label>
-                                <select id="optLanguage" class="w-full bg-dark-900 border border-zinc-800 text-white text-xs sm:text-sm rounded-xl px-3 py-2.5 outline-none focus:border-brand-500 transition-colors cursor-pointer">
-                                    <option value="id-ID" selected>Indonesia</option>
-                                    <option value="en-US">English</option>
-                                    <option value="jv-ID">Jawa</option>
-                                    <option value="su-ID">Sunda</option>
-                                    <option value="ko-KR">Korea</option>
-                                    <option value="ja-JP">Jepang</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-zinc-400 mb-1.5">Jenis Font</label>
-                                <select id="optFont" class="w-full bg-dark-900 border border-zinc-800 text-white text-xs sm:text-sm rounded-xl px-3 py-2.5 outline-none focus:border-brand-500 transition-colors cursor-pointer">
-                                    <optgroup label="Standar & Clean">
-                                        <option value="Inter">Inter</option>
-                                        <option value="Poppins" selected>Poppins</option>
-                                        <option value="Montserrat">Montserrat</option>
-                                        <option value="Roboto">Roboto</option>
-                                    </optgroup>
-                                    <optgroup label="Streamer & Display">
-                                        <option value="Bebas Neue">Bebas Neue (Bold Tall)</option>
-                                        <option value="Oswald">Oswald</option>
-                                        <option value="Righteous">Righteous (Modern Tech)</option>
-                                        <option value="Russo One">Russo One (Heavy Impact)</option>
-                                        <option value="Impact">Impact</option>
-                                    </optgroup>
-                                    <optgroup label="Coding & Retro Gaming">
-                                        <option value="JetBrains Mono">JetBrains Mono</option>
-                                        <option value="Fira Code">Fira Code</option>
-                                        <option value="Press Start 2P">Press Start 2P (8-Bit Pixel)</option>
-                                    </optgroup>
-                                    <optgroup label="Handwriting & Fun">
-                                        <option value="Caveat">Caveat (Tulisan Tangan)</option>
-                                        <option value="Pacifico">Pacifico (Script Fun)</option>
-                                        <option value="Lobster">Lobster</option>
-                                        <option value="Playfair Display">Playfair Display (Serif)</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Ketebalan & Ukuran Font -->
-                        <div class="grid grid-cols-2 gap-3.5">
-                            <div>
-                                <label class="block text-xs font-semibold text-zinc-400 mb-1.5">Ketebalan Font</label>
-                                <select id="optFontStyle" class="w-full bg-dark-900 border border-zinc-800 text-zinc-300 text-xs sm:text-sm rounded-xl px-3 py-2.5 outline-none focus:border-brand-500 transition-colors cursor-pointer">
-                                    <option value="normal">Normal</option>
-                                    <option value="italic">Miring (Italic)</option>
-                                    <option value="bold" selected>Tebal (Bold)</option>
-                                    <option value="bold-italic">Tebal Miring</option>
-                                </select>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-xs font-semibold text-zinc-400 mb-1.5">
-                                    <label>Ukuran Font (px)</label>
-                                    <span id="sizeVal" class="text-brand-500 font-bold">45px</span>
-                                </div>
-                                <input type="range" id="optSize" min="10" max="150" value="45">
-                            </div>
-                        </div>
-
-                        <!-- Master Opacity Teks & Latar -->
-                        <div class="grid grid-cols-3 gap-3 border-t border-zinc-800/80 pt-3.5 mt-1.5">
-                            <div>
-                                <label class="block text-xs font-semibold text-zinc-400 mb-1">Warna Teks</label>
-                                <input type="color" id="optTextColor" value="#ffffff">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-zinc-400 mb-1">Background</label>
-                                <input type="color" id="optBgColor" value="#000000">
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[11px] font-semibold text-zinc-400 mb-1">
-                                    <label>Bg Opacity</label>
-                                    <span id="bgOpacityVal" class="text-brand-500 font-bold">0%</span>
-                                </div>
-                                <input type="range" id="optBgOpacity" min="0" max="100" value="0">
-                            </div>
-                        </div>
-
-                        <!-- MASTER OPACITY SUBTITLE -->
-                        <div class="border-t border-zinc-800/80 pt-3 mt-1.5">
-                            <div class="flex justify-between text-xs font-semibold text-brand-500 uppercase tracking-wider mb-1">
-                                <label>Master Opacity Subtitle</label>
-                                <span id="masterOpacityVal" class="text-brand-500 font-bold">100%</span>
-                            </div>
-                            <input type="range" id="optMasterOpacity" min="0" max="100" value="100">
-                        </div>
-
-                        <!-- EFEK: STROKE (OUTLINE) WITH TOGGLE -->
-                        <div class="border-t border-zinc-800/80 pt-3 mt-1.5">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-semibold text-brand-500 uppercase tracking-wider">Stroke (Outline)</label>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggleStroke" class="sr-only peer" checked>
-                                    <div class="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
-                                </label>
-                            </div>
-                            <div id="strokeControls" class="grid grid-cols-2 gap-3.5">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-zinc-400 mb-1">Warna Stroke</label>
-                                    <input type="color" id="optStrokeColor" value="#000000">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-[11px] font-medium text-zinc-400 mb-1">
-                                        <label>Ukuran (px)</label>
-                                        <span id="strokeSizeVal" class="text-brand-500 font-semibold">2px</span>
-                                    </div>
-                                    <input type="range" id="optStrokeSize" min="1" max="20" value="2">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- EFEK: SHADOW (BAYANGAN) WITH TOGGLE -->
-                        <div class="border-t border-zinc-800/80 pt-3 mt-1.5">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-semibold text-brand-500 uppercase tracking-wider">Shadow (Bayangan)</label>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggleShadow" class="sr-only peer" checked>
-                                    <div class="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
-                                </label>
-                            </div>
-                            <div id="shadowControls" class="space-y-2">
-                                <div class="grid grid-cols-2 gap-3.5">
-                                    <div>
-                                        <label class="block text-[11px] font-medium text-zinc-400 mb-1">Warna Shadow</label>
-                                        <input type="color" id="optShadowColor" value="#000000">
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[11px] font-medium text-zinc-400 mb-1">
-                                            <label>Opacity Shadow</label>
-                                            <span id="shadowOpacityVal" class="text-brand-500 font-semibold">80%</span>
-                                        </div>
-                                        <input type="range" id="optShadowOpacity" min="0" max="100" value="80">
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <div>
-                                        <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
-                                            <label>Offset X</label>
-                                            <span id="shadowXVal" class="text-brand-500 font-semibold">2px</span>
-                                        </div>
-                                        <input type="range" id="optShadowX" min="-30" max="30" value="2">
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
-                                            <label>Offset Y</label>
-                                            <span id="shadowYVal" class="text-brand-500 font-semibold">2px</span>
-                                        </div>
-                                        <input type="range" id="optShadowY" min="-30" max="30" value="2">
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
-                                            <label>Blur</label>
-                                            <span id="shadowBlurVal" class="text-brand-500 font-semibold">4px</span>
-                                        </div>
-                                        <input type="range" id="optShadowBlur" min="0" max="50" value="4">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- EFEK: GLOW (PIJAR / NEON) WITH TOGGLE -->
-                        <div class="border-t border-zinc-800/80 pt-3 mt-1.5">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-semibold text-brand-500 uppercase tracking-wider">Glow (Pijar / Neon)</label>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggleGlow" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
-                                </label>
-                            </div>
-                            <div id="glowControls" class="grid grid-cols-3 gap-2 opacity-50 pointer-events-none transition-all">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-zinc-400 mb-1">Warna Glow</label>
-                                    <input type="color" id="optGlowColor" value="#6366f1">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
-                                        <label>Radius (px)</label>
-                                        <span id="glowBlurVal" class="text-brand-500 font-semibold">12px</span>
-                                    </div>
-                                    <input type="range" id="optGlowBlur" min="1" max="50" value="12">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
-                                        <label>Opacity Glow</label>
-                                        <span id="glowOpacityVal" class="text-brand-500 font-semibold">100%</span>
-                                    </div>
-                                    <input type="range" id="optGlowOpacity" min="0" max="100" value="100">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Posisi (X,Y) & Quick Presets -->
-                        <div class="pt-3 border-t border-zinc-800/80 mt-1.5">
-                            <label class="block text-xs font-semibold text-zinc-400 mb-2">
-                                <i class="fa-solid fa-arrows-up-down-left-right text-brand-500 mr-1"></i> Posisi Subtitle Layar
-                            </label>
-
-                            <!-- Quick Position Presets -->
-                            <div class="mb-2.5 grid grid-cols-3 gap-1.5 bg-dark-900/80 p-2 rounded-xl border border-zinc-800/80">
-                                <button type="button" onclick="setPosPreset(50, 15)" class="py-1.5 px-2 bg-dark-800 hover:bg-brand-600/30 hover:border-brand-500 border border-zinc-700/50 rounded-lg text-xs text-zinc-300 transition-all flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-arrow-up text-[10px]"></i> Atas
-                                </button>
-                                <button type="button" onclick="setPosPreset(50, 50)" class="py-1.5 px-2 bg-dark-800 hover:bg-brand-600/30 hover:border-brand-500 border border-zinc-700/50 rounded-lg text-xs text-zinc-300 transition-all flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-compress text-[10px]"></i> Tengah
-                                </button>
-                                <button type="button" onclick="setPosPreset(50, 85)" class="py-1.5 px-2 bg-dark-800 hover:bg-brand-600/30 hover:border-brand-500 border border-zinc-700/50 rounded-lg text-xs text-zinc-300 transition-all flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-arrow-down text-[10px]"></i> Bawah
-                                </button>
-                                <button type="button" onclick="setPosPreset(15, 85)" class="py-1.5 px-2 bg-dark-800 hover:bg-brand-600/30 hover:border-brand-500 border border-zinc-700/50 rounded-lg text-xs text-zinc-300 transition-all flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-arrow-down-left text-[10px]"></i> Kiri Bawah
-                                </button>
-                                <button type="button" onclick="setPosPreset(85, 85)" class="py-1.5 px-2 bg-dark-800 hover:bg-brand-600/30 hover:border-brand-500 border border-zinc-700/50 rounded-lg text-xs text-zinc-300 transition-all flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-arrow-down-right text-[10px]"></i> Kanan Bawah
-                                </button>
-                                <button type="button" onclick="setPosPreset(50, 70)" class="py-1.5 px-2 bg-dark-800 hover:bg-brand-600/30 hover:border-brand-500 border border-zinc-700/50 rounded-lg text-xs text-zinc-300 transition-all flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-film text-[10px]"></i> Lower Third
-                                </button>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3.5">
-                                <div>
-                                    <div class="flex justify-between text-[11px] font-medium text-zinc-500 mb-1">
-                                        <label>Geser Horizontal (X)</label>
-                                        <span id="posXVal" class="text-brand-500 font-semibold">50%</span>
-                                    </div>
-                                    <input type="range" id="optPosX" min="0" max="100" value="50">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-[11px] font-medium text-zinc-500 mb-1">
-                                        <label>Geser Vertikal (Y)</label>
-                                        <span id="posYVal" class="text-brand-500 font-semibold">85%</span>
-                                    </div>
-                                    <input type="range" id="optPosY" min="0" max="100" value="85">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- BATASAN TAMPILAN -->
-                        <div class="grid grid-cols-2 gap-2 border-t border-zinc-800/80 pt-2">
-                            <div>
-                                <label class="block text-[10px] font-semibold text-zinc-400 mb-1">Batas Baris</label>
-                                <select id="optLines" class="w-full bg-dark-900 border border-zinc-800 text-zinc-300 text-xs rounded-lg px-2 py-1 outline-none focus:border-brand-500 transition-colors cursor-pointer">
-                                    <option value="0">Tanpa Batas</option>
-                                    <option value="1">Maksimal 1 Baris</option>
-                                    <option value="2" selected>Maksimal 2 Baris</option>
-                                    <option value="3">Maksimal 3 Baris</option>
-                                </select>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[10px] font-semibold text-zinc-400 mb-1">
-                                    <label>Batas Kata</label>
-                                    <span id="wordLimitVal" class="text-brand-500 font-bold">15 Kata</span>
-                                </div>
-                                <input type="range" id="optWordLimit" min="5" max="50" value="15">
-                            </div>
-                        </div>
+                <!-- KARTU 1: MESIN AI -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-brand-500 to-transparent"></div>
+                    <div class="flex items-center gap-2 text-white font-semibold text-sm border-b border-zinc-800 pb-2">
+                        <i class="fa-solid fa-microchip text-brand-500"></i> Kontrol Suara
                     </div>
+                    <div class="flex gap-2">
+                        <select id="langPicker" onchange="changeLanguage()" class="w-1/3 h-10 rounded-xl bg-dark-950 text-white px-2 border border-zinc-800 outline-none text-xs">
+                            <option value="id-ID">🇮🇩 ID</option>
+                            <option value="en-US">🇺🇸 EN</option>
+                            <option value="jv-ID">🇮🇩 Jawa</option>
+                        </select>
+                        <button id="btnMic" onclick="toggleMic()" class="flex-grow bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] active:scale-[0.98] text-sm flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-microphone"></i> <span id="btnMicText">Start Live</span>
+                        </button>
+                        <button onclick="document.getElementById('micHelpModal').classList.remove('hidden')" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 px-3 rounded-xl text-zinc-300 text-sm transition-colors"><i class="fa-solid fa-gear"></i></button>
+                    </div>
+                    <p id="statusText" class="text-zinc-500 text-[11px] font-medium text-center flex items-center justify-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-zinc-600" id="statusDot"></span> Menunggu...
+                    </p>
                 </div>
 
-                <!-- TOMBOL SIMPAN PENGATURAN -->
-                <div class="shrink-0 pt-1">
-                    <button onclick="saveSubtitleSettings()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2 rounded-xl shadow-lg shadow-brand-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-xs">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        Simpan Desain ke OBS
-                    </button>
+                <!-- KARTU 2: BENTUK LAYOUT (PENGELOMPOKAN TERBARU) -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 bg-gradient-to-br from-zinc-900 to-zinc-800/80 border-brand-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+                    <div class="flex items-center gap-2 text-white font-semibold text-sm border-b border-zinc-700 pb-2">
+                        <i class="fa-solid fa-layer-group text-brand-500"></i> Wujud Teks (Template Layout)
+                    </div>
+                    
+                    <select id="layoutPicker" onchange="updateSettings()" class="w-full h-12 rounded-lg bg-zinc-950 text-brand-400 px-3 border border-brand-500/50 outline-none font-bold text-sm transition-colors shadow-inner cursor-pointer">
+                        <optgroup label="Teks Biasa & Modifikasi">
+                            <option value="subtitle">📝 Standar (Subtitle Biasa di Bawah)</option>
+                            <option value="shorts">📱 FYP Shorts (Kata Raksasa di Tengah)</option>
+                            <option value="neon">💡 Neon Sign (Papan Lampu Menyala)</option>
+                        </optgroup>
+                        <optgroup label="Template Desain Khusus">
+                            <option value="sticker">🏷️ Aesthetic Vlog (Stiker Scrapbook Numpuk)</option>
+                            <option value="chat">💬 Pesan Chat (Bubble Obrolan di Kanan)</option>
+                            <option value="rpg">🎮 RPG Game (Kotak Dialog Retro)</option>
+                            <option value="vhs">📼 Retro VHS (Tampilan Handycam 90an)</option>
+                            <option value="news">📺 TV News (Pita Berita Berjalan)</option>
+                            <option value="terminal">💻 Hacker Terminal (Kotak Mesin Ketik)</option>
+                        </optgroup>
+                    </select>
                 </div>
-            </div>
 
-            <!-- PANEL KANAN: PREVIEW LAYAR REAL-SCALE -->
-            <div class="lg:col-span-7 h-full min-h-0 overflow-hidden flex flex-col">
-                <div class="glass-panel rounded-xl p-3 border border-zinc-800 h-full flex flex-col min-h-0">
-                    <div class="flex flex-row justify-between items-center mb-2 gap-2 shrink-0">
-                        <div>
-                            <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
-                                <i class="fa-solid fa-desktop text-brand-500"></i> Live Canvas Preview
-                            </h2>
-                        </div>
-                        <select id="optOrientation" class="bg-dark-900 border border-zinc-800 text-zinc-300 text-[11px] rounded-lg px-2 py-1 outline-none focus:border-brand-500 cursor-pointer">
-                            <option value="portrait" selected>Portrait / TikTok (1080x1920)</option>
-                            <option value="landscape">Landscape / YouTube (1920x1080)</option>
+                <!-- KARTU 3: TYPOGRAPHY DASAR -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2 text-white font-semibold text-sm border-b border-zinc-800 pb-2">
+                        <i class="fa-solid fa-font text-brand-500"></i> Tipografi Detail
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-medium text-zinc-400 block mb-1 uppercase tracking-wider">Pilih Font</label>
+                        <select id="fontPicker" onchange="updateSettings()" class="w-full h-9 rounded-lg bg-dark-950 text-white px-2 border border-zinc-800 outline-none text-xs cursor-pointer">
+                            <optgroup label="Minimalis & Bersih">
+                                <option value="Montserrat, sans-serif">Montserrat</option>
+                                <option value="Inter, sans-serif">Inter</option>
+                                <option value="Poppins, sans-serif">Poppins</option>
+                                <option value="Roboto, sans-serif">Roboto</option>
+                                <option value="Lato, sans-serif">Lato</option>
+                            </optgroup>
+                            <optgroup label="Tebal & Impact (Gaming/Shorts)">
+                                <option value="Anton, sans-serif">Anton</option>
+                                <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+                                <option value="Kanit, sans-serif">Kanit</option>
+                                <option value="Oswald, sans-serif">Oswald</option>
+                                <option value="Bangers, sans-serif">Bangers</option>
+                                <option value="Righteous, sans-serif">Righteous</option>
+                            </optgroup>
+                            <optgroup label="Estetik & Tulisan Tangan (Vlog)">
+                                <option value="Syne, sans-serif">Syne</option>
+                                <option value="'Permanent Marker', cursive">Permanent Marker</option>
+                                <option value="Pacifico, cursive">Pacifico</option>
+                                <option value="Caveat, cursive">Caveat</option>
+                            </optgroup>
+                            <optgroup label="Futuristik & Tech">
+                                <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+                                <option value="'Press Start 2P', monospace">Pixel Retro</option>
+                            </optgroup>
                         </select>
                     </div>
 
-                    <!-- Container Wrapper Fleksibel pas dengan Tinggi Layar -->
-                    <div id="scaleWrapper" class="flex-grow bg-dark-900 rounded-xl overflow-hidden border border-zinc-800 relative bg-grid-pattern shadow-inner w-full min-h-0">
-                        
-                        <!-- Video Box -->
-                        <div id="videoContainer" class="absolute top-1/2 left-1/2 bg-cover bg-center transition-all duration-300 shadow-2xl border border-zinc-700/50" 
-                             style="width: 1080px; height: 1920px; background-color: #18181b; transform: translate(-50%, -50%) scale(0.3);">
-                            
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span class="text-indigo-500/20 font-bold text-5xl uppercase tracking-widest border-4 border-indigo-500/10 p-10 rounded-3xl">Area OBS Anda</span>
-                            </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-medium text-zinc-400 block mb-1 uppercase tracking-wider">Format</label>
+                            <select id="transformPicker" onchange="updateSettings()" class="w-full h-9 rounded-lg bg-dark-950 text-white px-2 border border-zinc-800 outline-none text-xs">
+                                <option value="none">Normal (Abc)</option>
+                                <option value="uppercase">KAPITAL</option>
+                                <option value="lowercase">kecil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-medium text-zinc-400 block mb-1 uppercase tracking-wider">Ketebalan</label>
+                            <select id="stylePicker" onchange="updateSettings()" class="w-full h-9 rounded-lg bg-dark-950 text-white px-2 border border-zinc-800 outline-none text-xs">
+                                <option value="bold">Tebal</option>
+                                <option value="bold-italic">Tebal Miring</option>
+                                <option value="regular">Normal</option>
+                            </select>
+                        </div>
+                    </div>
 
-                            <!-- ELEMEN SUBTITLE PREVIEW -->
-                            <div id="previewSubtitleBox">
-                                <div id="previewSubtitleText" class="subtitle-text">Selamat datang di IRLSubtitle untuk IRL System. Layar pratinjau ini menampilkan subtitle suara siaran Anda secara langsung.</div>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Ukuran Base</label><span id="sizeVal" class="text-[10px] text-brand-400">40px</span></div>
+                            <input type="range" id="sizePicker" min="20" max="100" value="40" oninput="updateSettings()" class="w-full">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Posisi Y (Standar)</label><span id="posVal" class="text-[10px] text-brand-400">85%</span></div>
+                            <input type="range" id="posPicker" min="0" max="100" value="85" oninput="updateSettings()" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KARTU 4: WARNA & BACKGROUND BOX DENGAN KUNCI OTOMATIS -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden">
+                    
+                    <!-- OVERLAY KUNCI WARNA -->
+                    <div id="colorOverlay" class="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center transition-all duration-300">
+                        <div class="bg-dark-950 border border-brand-500/30 text-brand-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                            <i class="fa-solid fa-lock"></i> <span>Warna Dikunci Template</span>
+                        </div>
+                        <p class="text-[9px] text-zinc-400 mt-2 text-center px-6">Setiap template khusus memiliki warna paten untuk menjamin estetika. Ganti Layout ke "Standar" untuk mengatur kustomisasi warna manual.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-white font-semibold text-sm border-b border-zinc-800 pb-2">
+                        <i class="fa-solid fa-fill-drip text-brand-500"></i> Warna & Aksen Manual
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-medium text-zinc-400 block mb-1 uppercase tracking-wider">Teks Utama</label>
+                            <input type="color" id="colorPicker" value="#ffffff" onchange="updateSettings()" class="w-full h-8 rounded cursor-pointer bg-dark-950 border border-zinc-800 p-0.5 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-medium text-zinc-400 block mb-1 uppercase tracking-wider">Warna Aksen</label>
+                            <input type="color" id="strokeColorPicker" value="#00ffcc" onchange="updateSettings()" class="w-full h-8 rounded cursor-pointer bg-dark-950 border border-zinc-800 p-0.5 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Tebal Garis</label><span id="strokeVal" class="text-[10px] text-brand-400">3px</span></div>
+                            <input type="range" id="strokePicker" min="0" max="8" value="3" oninput="updateSettings()" class="w-full">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Drop Shadow</label><span id="shadowVal" class="text-[10px] text-brand-400">4px</span></div>
+                            <input type="range" id="shadowPicker" min="0" max="20" value="4" oninput="updateSettings()" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- KONTROL LATAR GELAP -->
+                    <div class="border-t border-zinc-800 pt-3 mt-1 bg-zinc-900/50 p-3 rounded-lg border border-zinc-700/50">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">Background Box (Standar)</label>
+                            <input type="checkbox" id="bgBoxToggle" onchange="updateSettings()" class="accent-brand-500 w-5 h-5 cursor-pointer">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 transition-opacity duration-300 opacity-30 pointer-events-none" id="bgSettingsGroup">
+                            <div>
+                                <label class="text-[10px] font-medium text-zinc-400 block mb-1 uppercase tracking-wider">Warna Box</label>
+                                <input type="color" id="bgColorPicker" value="#000000" onchange="updateSettings()" class="w-full h-8 rounded cursor-pointer bg-dark-950 border border-zinc-800 p-0.5 outline-none">
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Transparansi</label><span id="bgOpacityVal" class="text-[10px] text-brand-400">70%</span></div>
+                                <input type="range" id="bgOpacityPicker" min="0" max="100" value="70" oninput="updateSettings()" class="w-full">
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- KARTU 5: AUTO HIDE -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Auto Hide</label><span id="hideVal" class="text-[10px] text-brand-400">3s</span></div>
+                            <input type="range" id="hidePicker" min="0" max="10" value="3" oninput="updateSettings()" class="w-full">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1"><label class="text-[10px] text-zinc-400 uppercase">Batas Kata</label><span id="limitVal" class="text-[10px] text-brand-400">15</span></div>
+                            <input type="range" id="limitPicker" min="5" max="30" value="15" oninput="updateSettings()" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- END KOLOM KIRI -->
+
+            <!-- KOLOM KANAN: PREVIEW DOM (STICKY) -->
+            <div class="w-full lg:w-7/12 flex flex-col gap-3 lg:sticky lg:top-6 z-10">
+                <div class="glass-panel rounded-2xl p-4 flex flex-col items-center gap-3 w-full border-brand-500/20 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <div class="w-full flex justify-between items-center text-xs font-semibold text-zinc-400 border-b border-zinc-800 pb-2 shrink-0">
+                        <div class="flex gap-3 items-center">
+                            <span class="text-white"><i class="fa-solid fa-desktop text-brand-500"></i> Live OBS Preview</span>
+                            <!-- Toggles Alignment -->
+                            <div class="flex bg-dark-950 rounded-lg p-0.5 border border-zinc-800">
+                                <button onclick="setAlign('left')" id="btnAlignLeft" class="px-2 py-1 rounded text-zinc-500 hover:text-white"><i class="fa-solid fa-align-left"></i></button>
+                                <button onclick="setAlign('center')" id="btnAlignCenter" class="px-2 py-1 rounded bg-zinc-800 text-white shadow"><i class="fa-solid fa-align-center"></i></button>
+                                <button onclick="setAlign('right')" id="btnAlignRight" class="px-2 py-1 rounded text-zinc-500 hover:text-white"><i class="fa-solid fa-align-right"></i></button>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">1920x1080 Scaled</span>
+                    </div>
+                    
+                    <div id="previewContainer" class="w-full bg-zinc-950 rounded-xl relative overflow-hidden border border-zinc-800 shadow-inner flex items-center justify-center aspect-video max-h-[70vh]">
+                        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
+                        <div class="absolute top-4 left-4 flex items-center gap-2 opacity-60 z-10 pointer-events-none">
+                            <div class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div><span class="text-[10px] font-bold text-white tracking-widest shadow-md">LIVE RENDER</span>
+                        </div>
+                        
+                        <div id="previewScaler" class="absolute origin-center w-[1920px] h-[1080px] pointer-events-none border-dashed border border-zinc-700/30 z-10">
+                            <div id="subtitleBox" class="absolute w-full px-10 flex justify-center transition-all duration-300" style="top: 85%;">
+                                <div id="subtitleText" class="subtitle-text subtitle-show"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- END KOLOM KANAN -->
 
         </div>
     </div>
 
+    <!-- POP-UP BANTUAN MIC -->
+    <div id="micHelpModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm p-4 z-[100]">
+        <div class="glass-panel border border-zinc-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl relative overflow-hidden">
+            <div class="flex justify-between items-center border-b border-zinc-700/50 pb-4 mb-4">
+                <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-circle-info text-brand-500"></i> Bantuan Mic</h3>
+                <button onclick="document.getElementById('micHelpModal').classList.add('hidden')" class="text-zinc-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3 text-zinc-300 text-sm">
+                <div class="bg-dark-950 p-4 rounded-xl border border-zinc-800 space-y-3">
+                    <p>1. Klik ikon <b>Gembok (🔒)</b> atau <b>Setting (⚙️)</b> di URL bar Chrome atas.</p>
+                    <p>2. Pilih menu <b>Microphone</b>, lalu pilih mic Anda.</p>
+                    <p>3. Tekan <kbd class="bg-zinc-700 px-1.5 py-0.5 rounded text-xs">F5</kbd> untuk merefresh halaman.</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('micHelpModal').classList.add('hidden')" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-3 rounded-xl mt-4 border border-zinc-700">Tutup</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODE 2: OBS LAYAR TRANSPARAN
+    =========================================== -->
+    <div id="obsPanel" class="hidden h-screen w-screen relative obs-mode">
+        <div id="subtitleBoxOBS" class="absolute w-full px-10 flex" style="top: 85%;">
+            <div id="subtitleTextOBS" class="subtitle-text"></div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT LOGIC (DYNAMIC LAYOUT ENGINE)
+    =========================================== -->
     <script>
-        // INISIALISASI SOCKET.IO KE LOCALHOST 5050
-        const socket = io(); // Akan otomatis menembak host port file ini dijalankan
-
         const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode') || 'obs'; // default obs
-        const streamId = urlParams.get('id') || 'default_user';
-
-        // ELEMEN DOM
-        const obsModeContainer = document.getElementById('obsModeContainer');
-        const controlModeContainer = document.getElementById('controlModeContainer');
+        const mode = urlParams.get('mode');
+        const streamId = urlParams.get('id') || 'default_stream';
         
-        const obsBox = document.getElementById('obsSubtitleBox');
-        const obsText = document.getElementById('obsSubtitleText');
+        const socket = io();
         
-        const previewBox = document.getElementById('previewSubtitleBox');
-        const previewText = document.getElementById('previewSubtitleText');
-        
-        // INPUTS
-        const inputsIds = [
-            'optLanguage', 'optFont', 'optFontStyle', 'optSize', 'optTextColor', 'optBgColor', 'optBgOpacity', 'optMasterOpacity',
-            'optStrokeColor', 'optStrokeSize',
-            'optShadowColor', 'optShadowOpacity', 'optShadowX', 'optShadowY', 'optShadowBlur',
-            'optGlowColor', 'optGlowBlur', 'optGlowOpacity',
-            'optPosX', 'optPosY', 'optWordLimit', 'optLines'
-        ];
+        let obsSettings = { autoHide: 3, maxWords: 15, align: 'center', layout: 'subtitle' };
+        let hideTimeout;
 
-        // FUNGSI CUSTOM TOAST
-        function showToast(message, isSuccess = true) {
-            const container = document.getElementById('toast-container');
-            if(!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            if (!isSuccess) {
-                toast.style.borderLeftColor = '#ef4444'; 
-                toast.style.boxShadow = '0 10px 15px -3px rgba(239, 68, 68, 0.2)';
-            }
-            toast.innerHTML = `<span class="font-bold">${isSuccess ? 'Sukses:' : 'Info:'}</span> ${message}`;
-            container.appendChild(toast);
-            setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 3000);
-        }
-
-        // =========================================================================
-        // MODE 1: LOGIKA JIKA HALAMAN DIBUKA DI OBS STUDIO
-        // =========================================================================
-        if (mode !== 'control') {
-            document.body.style.backgroundColor = 'transparent';
-            obsModeContainer.classList.remove('hidden');
-            
-            socket.emit('join_subtitle', streamId);
-
-            socket.on('update_settings', (s) => {
-                applyStylesToElement(obsText, obsBox, s);
-            });
-
-            socket.on('new_transcription', (data) => {
-                let limit = parseInt(data.wordLimit || 100);
-                let words = data.text.split(' ');
-                if (words.length > limit) {
-                    obsText.innerText = words.slice(0, limit).join(' ') + '...';
-                } else {
-                    obsText.innerText = data.text;
-                }
-            });
-
-            socket.on('clear_text', () => { obsText.innerText = ''; });
-        } 
-        
-        // =========================================================================
-        // MODE 2: LOGIKA JIKA HALAMAN DIBUKA SEBAGAI CONTROL PANEL DI CHROME
-        // =========================================================================
-        else {
-            controlModeContainer.classList.remove('hidden');
-            document.title = "IRLSubtitle Control Panel - IRL System";
-            
-            let liveTranscriptText = '';
-            
-            socket.emit('join_subtitle', streamId);
-            
-            // 1. Logika Skala Resolusi Nyata (Tanpa merusak UI)
-            function updateCanvasScale() {
-                const wrapper = document.getElementById('scaleWrapper');
-                const vc = document.getElementById('videoContainer');
-                if(!wrapper || !vc) return;
-
-                const isLandscape = document.getElementById('optOrientation').value === 'landscape';
-                
-                // Set resolusi asli mentah OBS
-                const baseWidth = isLandscape ? 1920 : 1080;
-                const baseHeight = isLandscape ? 1080 : 1920;
-                
-                vc.style.width = baseWidth + 'px';
-                vc.style.height = baseHeight + 'px';
-                
-                // Hitung skala agar muat di dalam container Wrapper
-                const padding = 20;
-                const scaleX = (wrapper.clientWidth - padding) / baseWidth;
-                const scaleY = (wrapper.clientHeight - padding) / baseHeight;
-                const scale = Math.max(0.1, Math.min(scaleX, scaleY, 1));
-                
-                // Gunakan absolute centering (translate) dipadukan dengan scale
-                vc.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            }
-
-            document.getElementById('optOrientation').addEventListener('change', updateCanvasScale);
-            window.addEventListener('resize', updateCanvasScale);
-            setTimeout(updateCanvasScale, 100); // init
-
-            // Toggle Handlers & UI Enablers
-            function bindToggle(toggleId, containerId) {
-                const toggle = document.getElementById(toggleId);
-                const container = document.getElementById(containerId);
-                if (!toggle || !container) return;
-                toggle.addEventListener('change', () => {
-                    if (toggle.checked) {
-                        container.classList.remove('opacity-50', 'pointer-events-none');
-                    } else {
-                        container.classList.add('opacity-50', 'pointer-events-none');
-                    }
-                    syncPreview();
-                });
-            }
-            bindToggle('toggleStroke', 'strokeControls');
-            bindToggle('toggleShadow', 'shadowControls');
-            bindToggle('toggleGlow', 'glowControls');
-
-            // 2. Real-time Preview Updater
-            function getSettingsObject() {
-                let s = {};
-                inputsIds.forEach(id => {
-                    let el = document.getElementById(id);
-                    if(el) s[id] = el.value;
-                });
-                s.enableStroke = document.getElementById('toggleStroke')?.checked ?? true;
-                s.enableShadow = document.getElementById('toggleShadow')?.checked ?? true;
-                s.enableGlow = document.getElementById('toggleGlow')?.checked ?? false;
-                return s;
-            }
-
-            function syncPreview() {
-                const s = getSettingsObject();
-                applyStylesToElement(previewText, previewBox, s);
-                
-                if(document.getElementById('sizeVal')) document.getElementById('sizeVal').innerText = `${s.optSize}px`;
-                if(document.getElementById('bgOpacityVal')) document.getElementById('bgOpacityVal').innerText = `${s.optBgOpacity}%`;
-                if(document.getElementById('masterOpacityVal')) document.getElementById('masterOpacityVal').innerText = `${s.optMasterOpacity}%`;
-                if(document.getElementById('strokeSizeVal')) document.getElementById('strokeSizeVal').innerText = `${s.optStrokeSize}px`;
-                if(document.getElementById('shadowOpacityVal')) document.getElementById('shadowOpacityVal').innerText = `${s.optShadowOpacity}%`;
-                if(document.getElementById('shadowXVal')) document.getElementById('shadowXVal').innerText = `${s.optShadowX}px`;
-                if(document.getElementById('shadowYVal')) document.getElementById('shadowYVal').innerText = `${s.optShadowY}px`;
-                if(document.getElementById('shadowBlurVal')) document.getElementById('shadowBlurVal').innerText = `${s.optShadowBlur}px`;
-                if(document.getElementById('glowBlurVal')) document.getElementById('glowBlurVal').innerText = `${s.optGlowBlur}px`;
-                if(document.getElementById('glowOpacityVal')) document.getElementById('glowOpacityVal').innerText = `${s.optGlowOpacity}%`;
-                if(document.getElementById('posXVal')) document.getElementById('posXVal').innerText = `${s.optPosX}%`;
-                if(document.getElementById('posYVal')) document.getElementById('posYVal').innerText = `${s.optPosY}%`;
-                if(document.getElementById('wordLimitVal')) document.getElementById('wordLimitVal').innerText = `${s.optWordLimit} Kata`;
-
-                const baseText = liveTranscriptText || "Selamat datang di IRLSubtitle untuk IRL System. Layar pratinjau ini menampilkan subtitle suara siaran Anda secara langsung.";
-                let words = baseText.split(' ');
-                let limit = parseInt(s.optWordLimit);
-                previewText.innerText = words.length > limit ? words.slice(0, limit).join(' ') + '...' : baseText;
-            }
-
-            inputsIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('input', syncPreview);
-                    if(el.tagName === 'SELECT') el.addEventListener('change', syncPreview);
-                }
-            });
-
-            // 3. Logika Drag and Drop di kanvas skala asli
-            let isDragging = false;
-            function startDrag(e) { isDragging = true; if(e.type === 'touchstart') e.preventDefault(); }
-            function doDrag(e) {
-                if (!isDragging) return;
-                let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                
-                const vc = document.getElementById('videoContainer');
-                const rect = vc.getBoundingClientRect(); // Mengembalikan ukuran scaled, sempurna untuk persentase
-                
-                let xPerc = ((clientX - rect.left) / rect.width) * 100;
-                let yPerc = ((clientY - rect.top) / rect.height) * 100;
-                
-                document.getElementById('optPosX').value = Math.round(Math.max(0, Math.min(100, xPerc)));
-                document.getElementById('optPosY').value = Math.round(Math.max(0, Math.min(100, yPerc)));
-                syncPreview();
-            }
-            function stopDrag() { isDragging = false; }
-
-            previewBox.addEventListener('mousedown', startDrag);
-            previewBox.addEventListener('touchstart', startDrag, { passive: false });
-            window.addEventListener('mousemove', doDrag);
-            window.addEventListener('touchmove', doDrag, { passive: false });
-            window.addEventListener('mouseup', stopDrag);
-            window.addEventListener('touchend', stopDrag);
-
-            // Quick Position Preset Handler
-            window.setPosPreset = function(x, y) {
-                const elX = document.getElementById('optPosX');
-                const elY = document.getElementById('optPosY');
-                if (elX) elX.value = x;
-                if (elY) elY.value = y;
-                syncPreview();
-            };
-
-            // Copy OBS URL Function
-            window.copyObsUrl = function() {
-                const obsUrl = `http://localhost:5050/subtitle.html?mode=obs&id=${streamId}`;
-                navigator.clipboard.writeText(obsUrl).then(() => {
-                    showToast('URL Subtitle OBS berhasil disalin!');
-                }).catch(() => {
-                    showToast('Gagal menyalin URL.', false);
-                });
-            };
-
-            // Petunjuk Penggunaan Modal
-            window.showGuideModal = function() {
-                const obsUrl = `http://localhost:5050/subtitle.html?mode=obs&id=${streamId}`;
-                Swal.fire({
-                    title: 'Petunjuk Penggunaan IRLSubtitle',
-                    html: `
-                        <div class="text-left text-xs space-y-3 font-sans text-zinc-300">
-                            <p class="text-zinc-400">Ikuti langkah mudah berikut untuk mengintegrasikan subtitle ke OBS Studio:</p>
-                            <div class="bg-dark-900 p-3 rounded-xl border border-zinc-800 space-y-1">
-                                <span class="font-semibold text-brand-400">1. Salin URL OBS Subtitle:</span>
-                                <input type="text" readonly value="${obsUrl}" onclick="this.select()" class="w-full bg-dark-800 border border-zinc-700 text-white font-mono text-[11px] p-2 rounded cursor-pointer">
-                            </div>
-                            <div class="space-y-1">
-                                <p><strong class="text-white">2. Buka OBS Studio:</strong> Tambahkan Source <code class="bg-zinc-800 px-1 py-0.5 rounded text-brand-400">Browser</code> baru.</p>
-                                <p><strong class="text-white">3. Tempel URL:</strong> Masukkan URL yang telah disalin di atas ke bidang URL Browser Source OBS.</p>
-                                <p><strong class="text-white">4. Atur Resolusi OBS:</strong> Set Width: <code class="text-emerald-400">1080</code> & Height: <code class="text-emerald-400">1920</code> (atau 1920x1080).</p>
-                                <p><strong class="text-white">5. Jalankan Subtitle:</strong> Klik tombol <span class="text-emerald-400 font-semibold">"Mulai Subtitle (Mic)"</span> lalu klik <span class="text-indigo-400 font-semibold">"Simpan Desain ke OBS"</span>.</p>
-                            </div>
-                        </div>
-                    `,
-                    icon: 'info',
-                    confirmButtonText: 'Saya Mengerti',
-                    confirmButtonColor: '#4f46e5'
-                });
-            };
-
-            syncPreview(); // Call awal
-
-            // 4. Save Settings via Socket
-            window.saveSubtitleSettings = function() {
-                const s = getSettingsObject();
-                socket.emit('save_settings', { streamId: streamId, settings: s });
-                showToast('Desain Subtitle berhasil disimpan & dikirim ke OBS!');
-            }
-
-            // 5. SISTEM MIC LOKAL TERTANAM (WEB SPEECH API)
-            let recognition;
-            let isListening = false;
-            const btnAI = document.getElementById('btnStartAI');
-            const statusAI = document.getElementById('aiStatusText');
-            const btnText = document.getElementById('aiBtnText');
-
-            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-            if (window.SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-
-                recognition.onresult = (event) => {
-                    let interimTranscript = '';
-                    let finalTranscript = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-                        else interimTranscript += event.results[i][0].transcript;
-                    }
-                    const textToSend = interimTranscript || finalTranscript;
-                    if (textToSend.trim() !== '') {
-                        liveTranscriptText = textToSend;
-                        syncPreview();
-                        statusAI.innerHTML = `Mendengar: <span class="text-emerald-400">"${textToSend.substring(0, 30)}..."</span>`;
-                        socket.emit('send_transcription', { 
-                            streamId: streamId, 
-                            text: textToSend, 
-                            isFinal: event.results[event.resultIndex].isFinal,
-                            wordLimit: document.getElementById('optWordLimit').value
-                        });
-                    }
-                };
-
-                recognition.onerror = (event) => {
-                    console.error("Mic Error:", event.error);
-                    if(event.error === 'not-allowed') {
-                        Swal.fire({
-                            title: 'Mikrofon Diblokir!',
-                            text: 'Chrome memblokir akses mikrofon. Silakan klik ikon Kamera/Gembok di URL Bar Chrome Anda, lalu izinkan mikrofon.',
-                            icon: 'error',
-                            background: '#18181b', color: '#fff'
-                        });
-                        stopAIEngine();
-                    }
-                };
-
-                recognition.onend = () => {
-                    if (isListening) recognition.start(); // Auto restart
-                };
-            } else {
-                btnAI.disabled = true;
-                btnText.innerText = "Browser Tidak Mendukung";
-                statusAI.innerText = "Fitur AI membutuhkan Google Chrome terbaru.";
-            }
-
-            window.toggleAI = function() {
-                if (!isListening) {
-                    recognition.lang = document.getElementById('optLanguage').value || 'id-ID';
-                    try { recognition.start(); } catch(e) {}
-                    
-                    isListening = true;
-                    btnAI.classList.replace('bg-emerald-600', 'bg-rose-600');
-                    btnAI.classList.replace('hover:bg-emerald-500', 'hover:bg-rose-500');
-                    btnAI.classList.replace('shadow-[0_0_20px_rgba(16,185,129,0.2)]', 'shadow-[0_0_20px_rgba(225,29,72,0.2)]');
-                    btnText.innerText = "Hentikan Subtitle";
-                    statusAI.innerHTML = `<span class="text-emerald-400 font-bold animate-pulse">Sistem Subtitle Aktif & Mendengarkan...</span>`;
-                } else {
-                    stopAIEngine();
-                }
-            }
-
-            function stopAIEngine() {
-                isListening = false;
-                liveTranscriptText = '';
-                try { recognition.stop(); } catch(e) {}
-                
-                btnAI.classList.replace('bg-rose-600', 'bg-emerald-600');
-                btnAI.classList.replace('hover:bg-rose-500', 'hover:bg-emerald-500');
-                btnAI.classList.replace('shadow-[0_0_20px_rgba(225,29,72,0.2)]', 'shadow-[0_0_20px_rgba(16,185,129,0.2)]');
-                btnText.innerText = "Mulai Subtitle (Mic)";
-                statusAI.innerText = "Status: Subtitle nonaktif.";
-                
-                syncPreview();
-                socket.emit('clear_transcription', streamId);
+        function resizePreviewArea() {
+            if (mode === 'obs') return;
+            const container = document.getElementById('previewContainer');
+            const scaler = document.getElementById('previewScaler');
+            if(container && scaler) {
+                const scale = (container.clientWidth) / 1920; 
+                scaler.style.transform = `scale(${scale})`;
             }
         }
+        window.addEventListener('resize', resizePreviewArea);
 
-        // =========================================================================
-        // FUNGSI GLOBAL PEMASANG DESAIN (Dipakai Preview & OBS)
-        // =========================================================================
-        function hexToRgba(hex, opacity) {
+        function hexToRgbA(hex, opacity){
             let c;
             if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
                 c= hex.substring(1).split('');
-                if(c.length== 3) c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                if(c.length== 3){ c= [c[0], c[0], c[1], c[1], c[2], c[2]]; }
                 c= '0x'+c.join('');
                 return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+(opacity/100)+')';
             }
-            return hex;
+            return `rgba(0,0,0,${opacity/100})`;
         }
 
-        function applyStylesToElement(textEl, boxEl, s) {
-            if(!textEl || !boxEl || !s) return;
-            textEl.style.fontFamily = `'${s.optFont}', sans-serif`;
-            textEl.style.fontStyle = (s.optFontStyle || '').includes('italic') ? 'italic' : 'normal';
-            textEl.style.fontWeight = (s.optFontStyle || '').includes('bold') ? 'bold' : 'normal';
-            textEl.style.fontSize = `${s.optSize}px`;
-            textEl.style.color = s.optTextColor;
-            textEl.className = 'subtitle-text';
+        // =========================================================
+        // ENGINE PENGUBAH WUJUD TEKS (HTML RE-STRUCTURING)
+        // =========================================================
+        function renderDynamicLayout(container, boxElement, rawText, s) {
+            if (!container || !boxElement) return;
+
+            let text = rawText;
+            if (s.transform === 'uppercase') text = text.toUpperCase();
+            if (s.transform === 'lowercase') text = text.toLowerCase();
             
-            // Master Opacity
-            const masterOpacity = (s.optMasterOpacity !== undefined ? parseInt(s.optMasterOpacity) : 100) / 100;
-            textEl.style.opacity = masterOpacity;
+            let words = text.split(' ').filter(w => w !== '');
+            if (words.length > s.maxWords) words = words.slice(-s.maxWords);
 
-            // Stroke (Outline ke Luar via Drop-Shadow Grid)
-            const enableStroke = s.enableStroke !== undefined ? (s.enableStroke === true || s.enableStroke === 'true') : true;
-            const strokeSize = parseInt(s.optStrokeSize || 0);
-            const strokeColor = s.optStrokeColor || '#000000';
-            textEl.style.webkitTextStroke = '0px transparent'; // Matikan inner/center stroke standar browser
+            boxElement.className = "absolute w-full px-10 flex transition-all duration-300";
+            if (s.align === 'left') boxElement.classList.add('justify-start');
+            else if (s.align === 'right') boxElement.classList.add('justify-end');
+            else boxElement.classList.add('justify-center');
+            
+            // SYSTEM COLOR LOCK: Tentukan warna berdasarkan layout
+            let tColor = s.color;
+            let tStroke = s.strokeColor;
+            
+            if (s.layout === 'sticker') {
+                tColor = '#5c3a21'; // Coklat gelap
+                tStroke = '#ffffff'; // Border putih
+                container.style.setProperty('--highlight-color', '#facc15'); // Kuning
+            } else if (s.layout === 'shorts') {
+                tColor = '#ffffff'; 
+                tStroke = '#000000'; 
+                container.style.setProperty('--highlight-color', '#facc15'); 
+            } else if (s.layout === 'news') {
+                tColor = '#ffffff';
+                tStroke = '#e11d48'; 
+            } else if (s.layout === 'terminal') {
+                tColor = '#4ade80'; 
+                tStroke = '#4ade80'; 
+                container.style.setProperty('--highlight-color', tStroke);
+            } else if (s.layout === 'neon') {
+                tColor = '#ffffff'; 
+                tStroke = '#00ffff'; 
+                container.style.setProperty('--highlight-color', tStroke);
+            } else if (s.layout === 'chat') {
+                tColor = '#ffffff'; 
+                tStroke = '#25D366'; 
+                container.style.setProperty('--highlight-color', tStroke);
+            } else if (s.layout === 'rpg') {
+                tColor = '#ffffff'; 
+                tStroke = '#ffffff'; 
+                container.style.setProperty('--highlight-color', tStroke);
+            } else if (s.layout === 'vhs') {
+                tColor = '#ffffff'; 
+                tStroke = '#ffffff'; 
+            } else {
+                container.style.setProperty('--highlight-color', tStroke);
+            }
 
-            // Shadow & Glow & Outer Stroke
-            const shadows = [];
-
-            if (enableStroke && strokeSize > 0) {
-                const sC = strokeColor;
-                // Buat 8-directional crisp outer stroke
-                shadows.push(`-${strokeSize}px -${strokeSize}px 0 ${sC}`);
-                shadows.push(`${strokeSize}px -${strokeSize}px 0 ${sC}`);
-                shadows.push(`-${strokeSize}px ${strokeSize}px 0 ${sC}`);
-                shadows.push(`${strokeSize}px ${strokeSize}px 0 ${sC}`);
-                shadows.push(`0 -${strokeSize}px 0 ${sC}`);
-                shadows.push(`0 ${strokeSize}px 0 ${sC}`);
-                shadows.push(`-${strokeSize}px 0 0 ${sC}`);
-                shadows.push(`${strokeSize}px 0 0 ${sC}`);
+            container.className = 'subtitle-text subtitle-show';
+            container.style.color = tColor; 
+            container.style.fontSize = (s.size * 1.5) + 'px'; 
+            
+            // Memastikan Font yang dipilih diterapkan
+            if (s.layout === 'rpg') {
+                container.style.fontFamily = "'Press Start 2P', monospace";
+            } else if (s.layout === 'vhs') {
+                container.style.fontFamily = "'VT323', monospace";
+            } else if (s.layout === 'sticker') {
+                container.style.fontFamily = (s.font && s.font !== "Inter, sans-serif") ? s.font : "'Fredoka', sans-serif";
+            } else {
+                container.style.fontFamily = s.font || 'Inter, sans-serif';
             }
             
-            // Shadow kustom
-            const enableShadow = s.enableShadow !== undefined ? (s.enableShadow === true || s.enableShadow === 'true') : true;
-            const shadowBlur = parseInt(s.optShadowBlur || 0);
-            const shadowX = parseInt(s.optShadowX || 0);
-            const shadowY = parseInt(s.optShadowY || 0);
-            const shadowOpacity = parseInt(s.optShadowOpacity !== undefined ? s.optShadowOpacity : 80);
-            if (enableShadow && shadowOpacity > 0 && (shadowBlur > 0 || shadowX !== 0 || shadowY !== 0)) {
-                shadows.push(`${shadowX}px ${shadowY}px ${shadowBlur}px ${hexToRgba(s.optShadowColor || '#000000', shadowOpacity)}`);
+            container.style.fontWeight = s.isBold ? 'bold' : 'normal';
+            container.style.fontStyle = s.isItalic ? 'italic' : 'normal';
+            
+            container.style.backgroundColor = 'transparent';
+            container.style.padding = '0';
+            container.style.webkitTextStroke = '0px';
+            container.style.textShadow = 'none';
+
+            // ==========================================
+            // CABANG 1: AESTHETIC STICKER 
+            // ==========================================
+            if (s.layout === 'sticker') {
+                boxElement.classList.add('layout-sticker');
+                boxElement.style.top = s.pos + '%'; 
+                
+                let displayWords = words.slice(-3);
+                container.innerHTML = ''; 
+                
+                displayWords.forEach((w, i) => {
+                    let span = document.createElement('span');
+                    span.innerText = w;
+                    span.dataset.word = w; 
+                    span.className = 'word-span';
+                    
+                    if (displayWords.length === 3) {
+                        if (i === 0) span.classList.add('word-top');
+                        else if (i === 1) span.classList.add('word-highlight');
+                        else span.classList.add('word-bottom');
+                    } 
+                    else if (displayWords.length === 2) {
+                        if (i === 0) span.classList.add('word-top');
+                        else span.classList.add('word-highlight'); 
+                    }
+                    else {
+                        span.classList.add('word-highlight');
+                    }
+
+                    if (i === displayWords.length - 1) span.style.animation = 'stickerPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+                    else { span.style.opacity = '1'; span.style.transform = 'scale(1) translateY(0)'; }
+                    
+                    container.appendChild(span);
+                });
+            }
+            // ==========================================
+            // CABANG 2: TIKTOK / FYP SHORTS
+            // ==========================================
+            else if (s.layout === 'shorts') {
+                boxElement.classList.add('layout-shorts');
+                boxElement.style.top = '50%'; 
+                
+                let displayWords = words.slice(-3); 
+                container.innerHTML = '';
+                
+                displayWords.forEach((w, i) => {
+                    let span = document.createElement('span');
+                    span.innerText = w;
+                    span.className = 'word-span';
+                    span.style.webkitTextStroke = `${s.stroke * 2.5}px ${tStroke}`;
+                    span.style.textShadow = `${s.shadow*2}px ${s.shadow*2}px 0px rgba(0,0,0,0.9)`;
+                    
+                    let rot = (i % 2 === 0) ? -3 : 2;
+                    span.style.rotate = `${rot}deg`;
+
+                    if (i === displayWords.length - 1) {
+                        span.classList.add('word-highlight'); 
+                        span.style.webkitTextStroke = `${s.stroke * 1.5}px #000`; 
+                        span.style.animation = 'shortsPop 0.3s cubic-bezier(0.175, 0.885, 0.320, 1.275) forwards';
+                    } else {
+                        span.style.opacity = '1';
+                        span.style.transform = 'scale(1)';
+                    }
+                    container.appendChild(span);
+                });
+            }
+            // ==========================================
+            // CABANG 3: BERITA TV 
+            // ==========================================
+            else if (s.layout === 'news') {
+                boxElement.classList.add('layout-news');
+                boxElement.style.top = 'auto'; 
+                
+                let sentence = words.join(' ');
+                container.innerHTML = `
+                    <div class="news-badge" style="background:${tStroke}; color:#000;">LIVE</div>
+                    <div class="news-content" style="color:${tColor}; font-size: ${(s.size * 1.2)}px;">${sentence}</div>
+                `;
+            }
+            // ==========================================
+            // CABANG 4: HACKER TERMINAL
+            // ==========================================
+            else if (s.layout === 'terminal') {
+                boxElement.classList.add('layout-terminal');
+                boxElement.style.top = '15%'; 
+                if (s.align === 'center') boxElement.style.top = '40%'; 
+                
+                let sentence = words.join(' ');
+                container.innerHTML = `>_ ${sentence}<span class="terminal-cursor" style="background:${tStroke};"></span>`;
+                container.style.color = tStroke; 
+            }
+            // ==========================================
+            // CABANG 5: NEON SIGN
+            // ==========================================
+            else if (s.layout === 'neon') {
+                boxElement.classList.add('layout-neon');
+                boxElement.style.top = s.pos + '%'; 
+                container.innerHTML = words.join(' ');
+            }
+            // ==========================================
+            // CABANG 6: PESAN CHAT
+            // ==========================================
+            else if (s.layout === 'chat') {
+                boxElement.classList.add('layout-chat');
+                boxElement.style.top = 'auto'; 
+                container.innerHTML = words.join(' ');
+            }
+            // ==========================================
+            // CABANG 7: RPG GAME
+            // ==========================================
+            else if (s.layout === 'rpg') {
+                boxElement.classList.add('layout-rpg');
+                boxElement.style.top = 'auto'; 
+                container.innerHTML = words.join(' ');
+            }
+            // ==========================================
+            // CABANG 8: RETRO VHS
+            // ==========================================
+            else if (s.layout === 'vhs') {
+                boxElement.classList.add('layout-vhs');
+                boxElement.style.top = 'auto'; 
+                container.innerHTML = words.join(' ');
+            }
+            // ==========================================
+            // CABANG 9: SUBTITLE STANDAR
+            // ==========================================
+            else {
+                boxElement.classList.add('layout-subtitle');
+                boxElement.style.top = s.pos + '%';
+                container.innerHTML = words.join(' ');
+
+                container.style.webkitTextStroke = `${s.stroke * 1.5}px ${tStroke}`;
+                container.style.textShadow = s.shadow > 0 ? `${s.shadow}px ${s.shadow}px ${s.shadow*2}px rgba(0,0,0,0.9)` : 'none';
+
+                if (s.isBgBox) {
+                    container.style.backgroundColor = hexToRgbA(s.bgColor, s.bgOpacity);
+                    container.style.padding = '15px 35px';
+                    container.style.borderRadius = '24px';
+                }
+            }
+        }
+
+        // ==========================================
+        // LOGIKA OBS LAYAR TRANSPARAN
+        // ==========================================
+        if (mode === 'obs') {
+            const cp = document.getElementById('controlPanel');
+            if (cp) cp.remove();
+            const glow = document.getElementById('bgGlow');
+            if (glow) glow.remove();
+            
+            document.getElementById('obsPanel').classList.remove('hidden');
+            
+            const subtitleText = document.getElementById('subtitleTextOBS');
+            const subtitleBox = document.getElementById('subtitleBoxOBS');
+
+            socket.emit('join_subtitle', streamId);
+
+            socket.on('new_transcription', (data) => {
+                let text = data.text;
+                renderDynamicLayout(subtitleText, subtitleBox, text, obsSettings);
+                
+                subtitleText.style.opacity = 1;
+                clearTimeout(hideTimeout);
+                if (obsSettings.autoHide > 0) {
+                    hideTimeout = setTimeout(() => { subtitleText.style.opacity = 0; }, obsSettings.autoHide * 1000);
+                }
+            });
+
+            socket.on('update_settings', (s) => {
+                obsSettings = s;
+                let currentText = subtitleText.innerText || "";
+                
+                if(s.layout === 'terminal') currentText = currentText.replace('>_', '').trim();
+                if(s.layout === 'news') currentText = currentText.replace('LIVE\n', '').replace('LIVE', '').trim();
+                if(s.layout === 'rpg') currentText = currentText.replace('▼', '').trim();
+                if(s.layout === 'vhs') currentText = currentText.replace('▶ PLAY', '').replace('▶ PLAY\n', '').trim();
+                
+                renderDynamicLayout(subtitleText, subtitleBox, currentText, s);
+
+                if (currentText !== '') {
+                    subtitleText.style.opacity = 1;
+                    clearTimeout(hideTimeout);
+                    if (s.autoHide > 0) hideTimeout = setTimeout(() => { subtitleText.style.opacity = 0; }, s.autoHide * 1000);
+                }
+            });
+        } 
+        
+        // ==========================================
+        // LOGIKA CONTROL PANEL UTAMA
+        // ==========================================
+        else {
+            const obsP = document.getElementById('obsPanel');
+            if (obsP) obsP.remove(); 
+
+            let recognition;
+            let isListening = false;
+
+            window.copyObsUrl = function() {
+                const obsUrl = `${window.location.origin}${window.location.pathname}?mode=obs&id=${streamId}`;
+                navigator.clipboard.writeText(obsUrl).then(() => {
+                    const btn = document.getElementById('btnCopyObs');
+                    btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Copied!`;
+                    setTimeout(() => { btn.innerHTML = `<i class="fa-solid fa-copy text-brand-400"></i> Copy URL OBS`; }, 2000);
+                });
+            };
+
+            window.setAlign = function(alignVal) {
+                obsSettings.align = alignVal;
+                ['left', 'center', 'right'].forEach(a => {
+                    const btn = document.getElementById('btnAlign' + a.charAt(0).toUpperCase() + a.slice(1));
+                    if (a === alignVal) btn.className = "px-2 py-1 rounded bg-zinc-800 text-white shadow transition-colors";
+                    else btn.className = "px-2 py-1 rounded text-zinc-500 hover:text-white transition-colors";
+                });
+                updateSettings();
+            };
+
+            window.updateSettings = function() {
+                const layoutVal = document.getElementById('layoutPicker').value;
+                const isBgBoxChecked = document.getElementById('bgBoxToggle').checked;
+                
+                const colorOverlay = document.getElementById('colorOverlay');
+                if (layoutVal !== 'subtitle') {
+                    colorOverlay.classList.remove('hidden', 'opacity-0');
+                    colorOverlay.classList.add('flex', 'opacity-100');
+                } else {
+                    colorOverlay.classList.add('hidden', 'opacity-0');
+                    colorOverlay.classList.remove('flex', 'opacity-100');
+                }
+
+                const bgSettingsGroup = document.getElementById('bgSettingsGroup');
+                if (isBgBoxChecked) bgSettingsGroup.classList.remove('opacity-30', 'pointer-events-none');
+                else bgSettingsGroup.classList.add('opacity-30', 'pointer-events-none');
+
+                const s = {
+                    layout: layoutVal,
+                    font: document.getElementById('fontPicker').value,
+                    fontStyleVal: document.getElementById('stylePicker').value,
+                    isBold: document.getElementById('stylePicker').value.includes('bold'),
+                    isItalic: document.getElementById('stylePicker').value.includes('italic'),
+                    transform: document.getElementById('transformPicker').value,
+                    align: obsSettings.align,
+                    autoHide: document.getElementById('hidePicker').value,
+                    maxWords: document.getElementById('limitPicker').value,
+                    color: document.getElementById('colorPicker').value,
+                    strokeColor: document.getElementById('strokeColorPicker').value,
+                    stroke: document.getElementById('strokePicker').value,
+                    shadow: document.getElementById('shadowPicker').value,
+                    isBgBox: isBgBoxChecked, 
+                    bgColor: document.getElementById('bgColorPicker').value,
+                    bgOpacity: document.getElementById('bgOpacityPicker').value,
+                    size: document.getElementById('sizePicker').value,
+                    pos: document.getElementById('posPicker').value
+                };
+                
+                obsSettings = s;
+                
+                document.getElementById('hideVal').innerText = s.autoHide == 0 ? 'Perm' : s.autoHide + 's';
+                document.getElementById('limitVal').innerText = s.maxWords;
+                document.getElementById('strokeVal').innerText = s.stroke + 'px';
+                document.getElementById('shadowVal').innerText = s.shadow + 'px';
+                document.getElementById('bgOpacityVal').innerText = s.bgOpacity + '%';
+                document.getElementById('sizeVal').innerText = s.size + 'px';
+                document.getElementById('posVal').innerText = s.pos + '%';
+
+                localStorage.setItem('subtitleSettingsPRO', JSON.stringify(s));
+                socket.emit('save_settings', { streamId: streamId, settings: s });
+
+                const preText = document.getElementById('subtitleText');
+                const preBox = document.getElementById('subtitleBox');
+                if (preText && preBox) {
+                    renderDynamicLayout(preText, preBox, "Coba test gaya keren", s);
+                    preText.style.opacity = 1;
+                    clearTimeout(hideTimeout);
+                    if (s.autoHide > 0) {
+                        hideTimeout = setTimeout(() => { preText.style.opacity = 0; }, s.autoHide * 1000);
+                    }
+                }
+            };
+
+            window.changeLanguage = function() {
+                if (recognition) {
+                    recognition.lang = document.getElementById('langPicker').value;
+                    if (isListening) { recognition.stop(); }
+                }
+            };
+
+            window.toggleMic = function() {
+                if (!recognition) {
+                    alert("⚠️ Browser Anda tidak mendukung Web Speech API!\n\nSolusi: Gunakan Google Chrome versi terbaru di PC/Laptop.");
+                    return;
+                }
+                
+                const btn = document.getElementById('btnMic');
+                
+                try {
+                    if (isListening) {
+                        isListening = false;
+                        recognition.stop();
+                        
+                        btn.classList.replace('bg-rose-600', 'bg-brand-600');
+                        btn.classList.replace('hover:bg-rose-500', 'hover:bg-brand-500');
+                        document.getElementById('btnMicText').innerText = "Start Live";
+                        btn.querySelector('i').className = "fa-solid fa-microphone";
+                        document.getElementById('statusText').innerHTML = `<span class="w-2 h-2 rounded-full bg-zinc-600"></span> Offline`;
+                    } else {
+                        recognition.start();
+                        isListening = true;
+                        
+                        btn.classList.replace('bg-brand-600', 'bg-rose-600');
+                        btn.classList.replace('hover:bg-brand-500', 'hover:bg-rose-500');
+                        document.getElementById('btnMicText').innerText = "Stop Mic";
+                        btn.querySelector('i').className = "fa-solid fa-stop";
+                        document.getElementById('statusText').innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Listening...`;
+                    }
+                } catch(err) {
+                    console.error("Gagal toggle Mic:", err);
+                    isListening = false;
+                    alert("Gagal mengakses mikrofon.\n\nDetail: " + err.message);
+                }
+            };
+
+            // LOAD DATA LOCALSTORAGE
+            const saved = localStorage.getItem('subtitleSettingsPRO');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.layout) document.getElementById('layoutPicker').value = parsed.layout;
+                    if (parsed.font) document.getElementById('fontPicker').value = parsed.font;
+                    if (parsed.fontStyleVal) document.getElementById('stylePicker').value = parsed.fontStyleVal;
+                    if (parsed.transform) document.getElementById('transformPicker').value = parsed.transform;
+                    if (parsed.color) document.getElementById('colorPicker').value = parsed.color;
+                    if (parsed.strokeColor) document.getElementById('strokeColorPicker').value = parsed.strokeColor;
+                    if (parsed.stroke !== undefined) document.getElementById('strokePicker').value = parsed.stroke;
+                    if (parsed.shadow !== undefined) document.getElementById('shadowPicker').value = parsed.shadow;
+                    if (parsed.isBgBox === true) document.getElementById('bgBoxToggle').checked = true;
+                    else document.getElementById('bgBoxToggle').checked = false;
+                    
+                    if (parsed.bgColor) document.getElementById('bgColorPicker').value = parsed.bgColor;
+                    if (parsed.bgOpacity !== undefined) document.getElementById('bgOpacityPicker').value = parsed.bgOpacity;
+                    if (parsed.size) document.getElementById('sizePicker').value = parsed.size;
+                    if (parsed.pos) document.getElementById('posPicker').value = parsed.pos;
+                    if (parsed.autoHide !== undefined) document.getElementById('hidePicker').value = parsed.autoHide;
+                    if (parsed.maxWords) document.getElementById('limitPicker').value = parsed.maxWords;
+                    if (parsed.align) setAlign(parsed.align);
+                } catch(e) {}
+            } else {
+                document.getElementById('fontPicker').value = "Inter, sans-serif";
+                document.getElementById('stylePicker').value = "bold";
+                document.getElementById('transformPicker').value = "none";
+                document.getElementById('bgBoxToggle').checked = false;
             }
 
-            // Glow kustom
-            const enableGlow = s.enableGlow !== undefined ? (s.enableGlow === true || s.enableGlow === 'true') : false;
-            const glowBlur = parseInt(s.optGlowBlur || 0);
-            const glowOpacity = parseInt(s.optGlowOpacity !== undefined ? s.optGlowOpacity : 100);
-            if (enableGlow && glowBlur > 0 && glowOpacity > 0) {
-                const glowRgba = hexToRgba(s.optGlowColor || '#6366f1', glowOpacity);
-                shadows.push(`0 0 ${glowBlur}px ${glowRgba}`);
-                shadows.push(`0 0 ${glowBlur * 2}px ${glowRgba}`);
+            setTimeout(() => { resizePreviewArea(); updateSettings(); }, 500);
+            
+            // INITIALIZE SPEECH AI SECARA AMAN
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = document.getElementById('langPicker').value; 
+
+                recognition.onresult = (event) => {
+                    let text = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        text += event.results[i][0].transcript;
+                    }
+                    
+                    document.getElementById('statusText').innerHTML = `<span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse" id="statusDot"></span> <i>"${text.slice(-20)}..."</i>`;
+                    
+                    const preText = document.getElementById('subtitleText');
+                    const preBox = document.getElementById('subtitleBox');
+                    
+                    if (preText && preBox) {
+                        renderDynamicLayout(preText, preBox, text, obsSettings);
+                        preText.style.opacity = 1;
+                        clearTimeout(hideTimeout);
+                        if (obsSettings.autoHide > 0) {
+                            hideTimeout = setTimeout(() => { preText.style.opacity = 0; }, obsSettings.autoHide * 1000);
+                        }
+                    }
+
+                    socket.emit('send_transcription', { streamId: streamId, text: text });
+                };
+
+                recognition.onend = () => { 
+                    if (isListening) { try { recognition.start(); } catch (e) {} } 
+                };
+
+                recognition.onerror = (event) => {
+                    if (event.error === 'not-allowed') {
+                        alert("Izin mic ditolak! Cek ikon gembok di URL bar atas dan pastikan izinkan Mikrofon.");
+                        if (isListening) toggleMic(); 
+                    } 
+                };
             }
-
-            textEl.style.textShadow = shadows.length > 0 ? shadows.join(', ') : 'none';
-            textEl.style.backgroundColor = hexToRgba(s.optBgColor || '#000000', s.optBgOpacity !== undefined ? s.optBgOpacity : 0);
-
-            boxEl.style.left = `${s.optPosX}%`;
-            boxEl.style.top = `${s.optPosY}%`;
-
-            const lines = parseInt(s.optLines);
-            textEl.style.display = lines > 0 ? '-webkit-box' : 'block';
-            textEl.style.webkitLineClamp = lines > 0 ? lines : 'unset';
-            textEl.style.webkitBoxOrient = 'vertical';
-            textEl.style.overflow = lines > 0 ? 'hidden' : 'visible';
-            textEl.style.whiteSpace = lines > 0 ? 'normal' : 'pre-wrap';
         }
     </script>
 </body>
