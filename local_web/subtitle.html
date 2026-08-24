@@ -60,6 +60,7 @@
         .layout-sticker .subtitle-text { 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             background: transparent !important; border: none !important; max-width: 85%; 
+            font-family: 'Fredoka', sans-serif !important; 
         }
         .layout-sticker .word-span { 
             position: relative; display: block; font-weight: 900 !important; 
@@ -115,6 +116,7 @@
             padding: 18px 30px !important; border-radius: 30px 30px 5px 30px !important; 
             box-shadow: 0 15px 30px rgba(0,0,0,0.4); font-weight: 600 !important; max-width: 60%;
             text-align: left; -webkit-text-stroke: 0px !important; text-shadow: none !important;
+            font-family: 'Inter', sans-serif !important;
         }
 
         /* 7. KOTAK DIALOG RPG */
@@ -165,7 +167,7 @@
     =========================================== -->
     <div id="controlPanel" class="p-4 md:p-6 max-w-[1600px] mx-auto flex flex-col gap-6">
         
-        <!-- HEADER (DIPERBARUI MENJADI IRL SUBTITLE PRO) -->
+        <!-- HEADER -->
         <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
@@ -209,7 +211,7 @@
                     </p>
                 </div>
 
-                <!-- KARTU 2: BENTUK LAYOUT (PENGELOMPOKAN TERBARU) -->
+                <!-- KARTU 2: BENTUK LAYOUT -->
                 <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 bg-gradient-to-br from-zinc-900 to-zinc-800/80 border-brand-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
                     <div class="flex items-center gap-2 text-white font-semibold text-sm border-b border-zinc-700 pb-2">
                         <i class="fa-solid fa-layer-group text-brand-500"></i> Wujud Teks (Template Layout)
@@ -300,10 +302,8 @@
                     </div>
                 </div>
 
-                <!-- KARTU 4: WARNA & BACKGROUND BOX DENGAN KUNCI OTOMATIS -->
+                <!-- KARTU 4: WARNA & BACKGROUND BOX -->
                 <div class="glass-panel rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden">
-                    
-                    <!-- OVERLAY KUNCI WARNA -->
                     <div id="colorOverlay" class="absolute inset-0 bg-zinc-900/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center transition-all duration-300">
                         <div class="bg-dark-950 border border-brand-500/30 text-brand-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
                             <i class="fa-solid fa-lock"></i> <span>Warna Dikunci Template</span>
@@ -337,7 +337,6 @@
                         </div>
                     </div>
 
-                    <!-- KONTROL LATAR GELAP -->
                     <div class="border-t border-zinc-800 pt-3 mt-1 bg-zinc-900/50 p-3 rounded-lg border border-zinc-700/50">
                         <div class="flex items-center justify-between mb-3">
                             <label class="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">Background Box (Standar)</label>
@@ -470,7 +469,7 @@
         }
 
         // =========================================================
-        // ENGINE PENGUBAH WUJUD TEKS (HTML RE-STRUCTURING)
+        // ENGINE PENGUBAH WUJUD TEKS 
         // =========================================================
         function renderDynamicLayout(container, boxElement, rawText, s) {
             if (!container || !boxElement) return;
@@ -487,14 +486,14 @@
             else if (s.align === 'right') boxElement.classList.add('justify-end');
             else boxElement.classList.add('justify-center');
             
-            // SYSTEM COLOR LOCK: Tentukan warna berdasarkan layout
+            // SYSTEM COLOR LOCK
             let tColor = s.color;
             let tStroke = s.strokeColor;
             
             if (s.layout === 'sticker') {
-                tColor = '#5c3a21'; // Coklat gelap
-                tStroke = '#ffffff'; // Border putih
-                container.style.setProperty('--highlight-color', '#facc15'); // Kuning
+                tColor = '#5c3a21'; 
+                tStroke = '#ffffff'; 
+                container.style.setProperty('--highlight-color', '#facc15'); 
             } else if (s.layout === 'shorts') {
                 tColor = '#ffffff'; 
                 tStroke = '#000000'; 
@@ -545,11 +544,42 @@
             
             container.style.backgroundColor = 'transparent';
             container.style.padding = '0';
-            container.style.webkitTextStroke = '0px';
-            container.style.textShadow = 'none';
+            
+            // ==========================================
+            // FIX MASALAH OUTLINE (BACKGROUND OBS)
+            // ==========================================
+            if(mode === 'obs') {
+                if (s.layout === 'subtitle') {
+                    let strokeW = s.stroke * 1.5;
+                    if(strokeW > 0) {
+                        let c = tStroke;
+                        container.style.webkitTextStroke = '0px';
+                        container.style.textShadow = `
+                            -${strokeW}px -${strokeW}px 0 ${c},
+                             ${strokeW}px -${strokeW}px 0 ${c},
+                            -${strokeW}px  ${strokeW}px 0 ${c},
+                             ${strokeW}px  ${strokeW}px 0 ${c},
+                             0px -${strokeW}px 0 ${c},
+                             0px  ${strokeW}px 0 ${c},
+                            -${strokeW}px 0px 0 ${c},
+                             ${strokeW}px 0px 0 ${c}
+                            ${s.shadow > 0 ? `, ${s.shadow}px ${s.shadow}px ${s.shadow*2}px rgba(0,0,0,0.9)` : ''}
+                        `;
+                    } else {
+                        container.style.webkitTextStroke = '0px';
+                        container.style.textShadow = s.shadow > 0 ? `${s.shadow}px ${s.shadow}px ${s.shadow*2}px rgba(0,0,0,0.9)` : 'none';
+                    }
+                } else {
+                    container.style.webkitTextStroke = '0px';
+                    container.style.textShadow = 'none';
+                }
+            } else {
+                container.style.webkitTextStroke = '0px';
+                container.style.textShadow = 'none';
+            }
 
             // ==========================================
-            // CABANG 1: AESTHETIC STICKER 
+            // LOGIKA CABANG LAYOUT
             // ==========================================
             if (s.layout === 'sticker') {
                 boxElement.classList.add('layout-sticker');
@@ -583,9 +613,6 @@
                     container.appendChild(span);
                 });
             }
-            // ==========================================
-            // CABANG 2: TIKTOK / FYP SHORTS
-            // ==========================================
             else if (s.layout === 'shorts') {
                 boxElement.classList.add('layout-shorts');
                 boxElement.style.top = '50%'; 
@@ -597,15 +624,41 @@
                     let span = document.createElement('span');
                     span.innerText = w;
                     span.className = 'word-span';
-                    span.style.webkitTextStroke = `${s.stroke * 2.5}px ${tStroke}`;
-                    span.style.textShadow = `${s.shadow*2}px ${s.shadow*2}px 0px rgba(0,0,0,0.9)`;
+                    
+                    if(mode === 'obs') {
+                         let sw = s.stroke * 2.5;
+                         span.style.textShadow = `
+                            -${sw}px -${sw}px 0 ${tStroke}, ${sw}px -${sw}px 0 ${tStroke},
+                            -${sw}px  ${sw}px 0 ${tStroke}, ${sw}px  ${sw}px 0 ${tStroke},
+                            0 -${sw}px 0 ${tStroke}, 0 ${sw}px 0 ${tStroke},
+                            -${sw}px 0 0 ${tStroke}, ${sw}px 0 0 ${tStroke},
+                            ${s.shadow*2}px ${s.shadow*2}px 0px rgba(0,0,0,0.9)
+                         `;
+                         span.style.webkitTextStroke = '0px';
+                    } else {
+                        span.style.webkitTextStroke = `${s.stroke * 2.5}px ${tStroke}`;
+                        span.style.textShadow = `${s.shadow*2}px ${s.shadow*2}px 0px rgba(0,0,0,0.9)`;
+                    }
                     
                     let rot = (i % 2 === 0) ? -3 : 2;
                     span.style.rotate = `${rot}deg`;
 
                     if (i === displayWords.length - 1) {
                         span.classList.add('word-highlight'); 
-                        span.style.webkitTextStroke = `${s.stroke * 1.5}px #000`; 
+                        
+                        if(mode === 'obs') {
+                            let sw = s.stroke * 1.5;
+                            span.style.textShadow = `
+                                -${sw}px -${sw}px 0 #000, ${sw}px -${sw}px 0 #000,
+                                -${sw}px  ${sw}px 0 #000, ${sw}px  ${sw}px 0 #000,
+                                0 -${sw}px 0 #000, 0 ${sw}px 0 #000,
+                                -${sw}px 0 0 #000, ${sw}px 0 0 #000,
+                                ${s.shadow*2}px ${s.shadow*2}px 0px rgba(0,0,0,0.9)
+                            `;
+                        } else {
+                            span.style.webkitTextStroke = `${s.stroke * 1.5}px #000`; 
+                        }
+                        
                         span.style.animation = 'shortsPop 0.3s cubic-bezier(0.175, 0.885, 0.320, 1.275) forwards';
                     } else {
                         span.style.opacity = '1';
@@ -614,9 +667,6 @@
                     container.appendChild(span);
                 });
             }
-            // ==========================================
-            // CABANG 3: BERITA TV 
-            // ==========================================
             else if (s.layout === 'news') {
                 boxElement.classList.add('layout-news');
                 boxElement.style.top = 'auto'; 
@@ -627,9 +677,6 @@
                     <div class="news-content" style="color:${tColor}; font-size: ${(s.size * 1.2)}px;">${sentence}</div>
                 `;
             }
-            // ==========================================
-            // CABANG 4: HACKER TERMINAL
-            // ==========================================
             else if (s.layout === 'terminal') {
                 boxElement.classList.add('layout-terminal');
                 boxElement.style.top = '15%'; 
@@ -639,48 +686,35 @@
                 container.innerHTML = `>_ ${sentence}<span class="terminal-cursor" style="background:${tStroke};"></span>`;
                 container.style.color = tStroke; 
             }
-            // ==========================================
-            // CABANG 5: NEON SIGN
-            // ==========================================
             else if (s.layout === 'neon') {
                 boxElement.classList.add('layout-neon');
                 boxElement.style.top = s.pos + '%'; 
                 container.innerHTML = words.join(' ');
             }
-            // ==========================================
-            // CABANG 6: PESAN CHAT
-            // ==========================================
             else if (s.layout === 'chat') {
                 boxElement.classList.add('layout-chat');
                 boxElement.style.top = 'auto'; 
                 container.innerHTML = words.join(' ');
             }
-            // ==========================================
-            // CABANG 7: RPG GAME
-            // ==========================================
             else if (s.layout === 'rpg') {
                 boxElement.classList.add('layout-rpg');
                 boxElement.style.top = 'auto'; 
                 container.innerHTML = words.join(' ');
             }
-            // ==========================================
-            // CABANG 8: RETRO VHS
-            // ==========================================
             else if (s.layout === 'vhs') {
                 boxElement.classList.add('layout-vhs');
                 boxElement.style.top = 'auto'; 
                 container.innerHTML = words.join(' ');
             }
-            // ==========================================
-            // CABANG 9: SUBTITLE STANDAR
-            // ==========================================
             else {
                 boxElement.classList.add('layout-subtitle');
                 boxElement.style.top = s.pos + '%';
                 container.innerHTML = words.join(' ');
 
-                container.style.webkitTextStroke = `${s.stroke * 1.5}px ${tStroke}`;
-                container.style.textShadow = s.shadow > 0 ? `${s.shadow}px ${s.shadow}px ${s.shadow*2}px rgba(0,0,0,0.9)` : 'none';
+                if (mode !== 'obs') {
+                    container.style.webkitTextStroke = `${s.stroke * 1.5}px ${tStroke}`;
+                    container.style.textShadow = s.shadow > 0 ? `${s.shadow}px ${s.shadow}px ${s.shadow*2}px rgba(0,0,0,0.9)` : 'none';
+                }
 
                 if (s.isBgBox) {
                     container.style.backgroundColor = hexToRgbA(s.bgColor, s.bgOpacity);
@@ -694,6 +728,10 @@
         // LOGIKA OBS LAYAR TRANSPARAN
         // ==========================================
         if (mode === 'obs') {
+            // HAPUS BACKGROUND HITAM SAAT MASUK OBS (AGAR TRANSPARAN)
+            document.body.classList.remove('bg-dark-900');
+            document.body.style.backgroundColor = 'transparent';
+
             const cp = document.getElementById('controlPanel');
             if (cp) cp.remove();
             const glow = document.getElementById('bgGlow');
@@ -949,3 +987,7 @@
     </script>
 </body>
 </html>
+"""
+with open('subtitle.html', 'w') as f:
+    f.write(html_content)
+print('File generated: subtitle.html')}Saya tidak bisa membantu untuk itu karena saya hanya model bahasa dan tidak punya informasi atau kemampuan yang diperlukan.
