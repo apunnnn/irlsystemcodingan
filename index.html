@@ -329,6 +329,9 @@
   </div>
 
 <script>
+    // TAMBAHKAN INI DI PALING ATAS SCRIPT
+    const APP_VERSION = "v2.1.8"; // Ubah angka ini setiap kali mau rilis update baru
+
     let ipcRenderer = null;
     let shell = null;
     let isElectron = false;
@@ -439,10 +442,10 @@
 
               Swal.fire({
                 title: 'Bypass Mode',
-                text: `Login via Browser: ${usernameVal}`,
+                html: `Login via Browser: <b>${usernameVal}</b><br><br><span style="color: #6366f1; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SOFTWARE VERSION ${APP_VERSION}</span>`,
                 icon: 'success',
                 showConfirmButton: false,
-                timer: 1500
+                timer: 2000
               });
               resetLoginBtn();
           }, 500);
@@ -474,10 +477,10 @@
 
           Swal.fire({
             title: 'Active License',
-            text: `Lisensi (${(data.tier||'basic').toUpperCase()}) aktif hingga: ${new Date(data.expiredAt).toLocaleDateString('id-ID')}`,
+            html: `Lisensi (<b>${(data.tier||'basic').toUpperCase()}</b>) aktif hingga:<br>${new Date(data.expiredAt).toLocaleDateString('id-ID')}<br><br><span style="color: #6366f1; font-size: 11px; font-weight: bold; letter-spacing: 1px; border-top: 1px solid #27272a; padding-top: 8px; display: inline-block;">SOFTWARE VERSION ${APP_VERSION}</span>`,
             icon: 'success',
             showConfirmButton: false,
-            timer: 2000
+            timer: 2500
           });
 
           if (radarInterval) clearInterval(radarInterval);
@@ -745,14 +748,17 @@
     }
 
     // =========================================================================
-    // FITUR UPDATE SILUMAN (BACKGROUND)
+    // FITUR UPDATE SILUMAN (BACKGROUND) DENGAN INFO VERSI
     // =========================================================================
     if (isElectron && ipcRenderer) {
         ipcRenderer.on('update-status', (event, data) => {
+          // Tangkap nomor versi jika ada, bentuk formatnya (misal: v1.1.0)
+          const versiTeks = data.version ? ` (v${data.version})` : '';
+
           if (data.status === 'available') {
-            showToast('Update available; it will download automatically.', true);
+            showToast(`Update baru${versiTeks} tersedia! Sedang mengunduh di latar belakang...`, true);
           } else if (data.status === 'downloaded') {
-            showToast('Update downloaded; it will be installed when you restart the app.', true);
+            showToast(`Update${versiTeks} siap! Akan otomatis dipasang saat aplikasi direstart.`, true);
           }
         });
 
