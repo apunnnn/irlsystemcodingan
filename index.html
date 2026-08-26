@@ -9,7 +9,7 @@
   <!-- Google Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+  
   <script>
     tailwind.config = {
       theme: {
@@ -30,7 +30,7 @@
   <style>
     body { background-color: #09090b; }
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
+    
     .glass-panel {
       background: rgba(24, 24, 27, 0.4);
       backdrop-filter: blur(12px);
@@ -43,7 +43,7 @@
       from { opacity: 0; transform: translateY(15px); } 
       to { opacity: 1; transform: translateY(0); } 
     }
-
+    
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
@@ -73,7 +73,7 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 8px; }
-
+    
     #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
     .toast { background: #18181b; border-left: 4px solid #10b981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); transform: translateX(120%); opacity: 0; animation: slideIn 0.3s forwards, fadeOut 0.3s forwards 4.5s; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,0.05); }
     @keyframes slideIn { to { transform: translateX(0); opacity: 1; } }
@@ -112,7 +112,7 @@
 
   <!-- DASHBOARD VIEW -->
   <div id="dashboard-view" class="hidden m-auto relative z-10 w-full max-w-5xl">
-
+    
     <!-- Top Bar Dasbor -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 glass-panel p-5 px-6 rounded-2xl gap-4 md:gap-0">
       <div class="flex items-center gap-4">
@@ -130,7 +130,6 @@
         <button id="subtitle-btn" onclick="openSubtitleControl()" class="flex items-center gap-2 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/60 text-zinc-200 hover:text-white px-3.5 py-2 rounded-xl text-xs font-medium transition-all w-full md:w-auto justify-center cursor-pointer">
           <i class="fa-solid fa-closed-captioning text-brand-400"></i>
           <span>Subtitle Panel</span>
-          <span id="subtitle-lock-icon" class="hidden text-zinc-400 text-[10px]">🔒</span>
         </button>
         <div class="h-6 w-px bg-zinc-700/50 hidden md:block"></div>
         <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
@@ -147,11 +146,11 @@
     <!-- Isi Dasbor (Kamera & Output) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-8 space-y-6">
-
+        
         <!-- KOTAK INPUT KAMERA -->
         <div class="glass-panel rounded-2xl p-7 relative overflow-hidden">
           <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
-
+          
           <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div>
               <div class="flex items-center gap-3">
@@ -169,7 +168,7 @@
               <button id="open-guide-btn" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg transition-all">Panduan</button>
             </div>
           </div>
-
+          
           <div id="camera-fields-body" class="space-y-5">
             <div id="lock-warning-box" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-xs font-medium text-center">
               🔒 Fitur Multi-Camera ini dikunci! Silakan hubungi Admin untuk upgrade ke Paket PRO.
@@ -192,7 +191,7 @@
                 <button onclick="salinTeks('link-kamera-srt')" class="bg-white/5 hover:bg-white/10 text-zinc-300 border border-zinc-800 rounded-r-xl px-5 text-sm transition-all group-hover:border-zinc-700 hover:text-white">Copy</button>
               </div>
             </div>
-
+            
             <div>
               <label class="block text-xs font-medium text-zinc-400 mb-2">Jalur RTMP (Alternatif)</label>
               <div class="flex group">
@@ -210,7 +209,7 @@
             <h3 class="text-white font-medium text-base">Output (OBS / vMix)</h3>
             <p class="text-xs text-zinc-500 mt-1">Paste ke Media Source. Untuk SRT ketik <code class="bg-dark-900 border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-300 font-mono">mpegts</code> di Input Format.</p>
           </div>
-
+          
           <div class="space-y-5">
             <div>
               <label class="block text-xs font-medium text-zinc-400 mb-2">Output via SRT</label>
@@ -229,15 +228,15 @@
           </div>
         </div>
 
-        <!-- KOTAK TIKTOK LIVE STUDIO (HANYA 2 INPUT GEDE, DESAIN SAMA) -->
+        <!-- KOTAK TIKTOK LIVE STUDIO (METODE DOMAIN HTTPS) -->
         <div class="glass-panel rounded-2xl p-6 relative overflow-hidden border-brand-500/20">
           <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
           <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
             <div>
               <h3 class="text-white font-medium text-base flex items-center gap-2">
-                TikTok Live Studio Mode
+                TikTok Live Studio Mode (Link Source)
               </h3>
-              <p class="text-xs text-zinc-400 mt-1">Pilih metode input untuk menghubungkan kamera ke TTLS.</p>
+              <p class="text-xs text-zinc-400 mt-1">Gunakan link WebRTC ini jika Anda streaming via TTLS tanpa OBS.</p>
             </div>
             <div class="flex flex-col items-end gap-3">
               <button onclick="tampilkanPanduanTTLS()" class="bg-white/5 hover:bg-white/10 text-zinc-300 border border-zinc-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-brand-500/20">
@@ -245,23 +244,13 @@
               </button>
             </div>
           </div>
-
-          <div class="space-y-5">
-            <!-- Tautan Tampilan WebRTC Default -->
+          
+          <div class="space-y-6">
             <div>
-              <label class="block text-[11px] font-medium text-brand-400 mb-1.5 uppercase tracking-wider">Tautan WebRTC (Add Tautan)</label>
+              <label class="block text-[11px] font-medium text-brand-400 mb-1.5 uppercase tracking-wider">Tautan WebRTC (Video Live)</label>
               <div class="flex group">
-                <input type="text" id="link-ttls-video-only" readonly class="w-full bg-dark-900 border border-zinc-800 border-r-0 rounded-l-xl px-4 py-3 text-sm text-white font-mono focus:outline-none group-hover:border-zinc-700 transition-colors">
-                <button onclick="salinTeks('link-ttls-video-only')" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-r-xl px-6 text-sm transition-all shadow-[0_0_15px_rgba(99,102,241,0.3)] whitespace-nowrap">Copy Link</button>
-              </div>
-            </div>
-
-            <!-- Tautan RTMP Network Mode -->
-            <div>
-              <label class="block text-[11px] font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Tautan RTMP (Add Network/Jaringan)</label>
-              <div class="flex group">
-                <input type="text" id="link-ttls-rtmp" readonly class="w-full bg-dark-900 border border-zinc-800 border-r-0 rounded-l-xl px-4 py-3 text-sm text-zinc-300 font-mono focus:outline-none group-hover:border-zinc-700 transition-colors">
-                <button onclick="salinTeks('link-ttls-rtmp')" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-r-xl px-6 text-sm transition-all shadow-[0_0_15px_rgba(99,102,241,0.3)] whitespace-nowrap">Copy Link</button>
+                <input type="text" id="link-ttls-video-only" readonly class="w-full bg-dark-900 border border-zinc-800 border-r-0 rounded-l-xl px-4 py-2 text-sm text-white font-mono focus:outline-none group-hover:border-zinc-700 transition-colors">
+                <button onclick="salinTeks('link-ttls-video-only')" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-r-xl px-6 text-xs transition-all shadow-[0_0_15px_rgba(99,102,241,0.3)] whitespace-nowrap">Copy Link</button>
               </div>
             </div>
           </div>
@@ -280,7 +269,7 @@
             <div id="radar-ring-2" class="absolute w-2/3 h-2/3 border border-zinc-700 rounded-full animate-ping opacity-40" style="animation-duration: 2s; animation-delay: 0.5s;"></div>
             <div id="radar-core" class="w-3.5 h-3.5 bg-zinc-600 rounded-full transition-all duration-700 z-10"></div>
           </div>
-
+          
           <div class="text-center">
             <span id="status-text" class="text-zinc-400 font-medium text-sm transition-colors duration-300">Menunggu Sinyal...</span>
             <p id="status-sub" class="text-xs text-zinc-600 mt-1 font-mono">Cam 1 Standby</p>
@@ -289,7 +278,7 @@
       </div>
 
     </div>
-
+    
     <div class="mt-8 flex justify-between items-center text-xs">
       <button onclick="bukaLink('https://tiktok.com/@apann_20')" class="text-zinc-600 hover:text-zinc-400 transition-colors">
         Created by @apann_20
@@ -329,9 +318,6 @@
   </div>
 
 <script>
-    // TAMBAHKAN INI DI PALING ATAS SCRIPT
-    const APP_VERSION = "v2.1.9"; // Ubah angka ini setiap kali mau rilis update baru
-
     let ipcRenderer = null;
     let shell = null;
     let isElectron = false;
@@ -342,12 +328,12 @@
             const electron = require('electron');
             ipcRenderer = electron.ipcRenderer;
             shell = electron.shell;
-
+            
             try {
                 const { machineIdSync } = require('node-machine-id');
                 hwidPC = machineIdSync();
             } catch(e) { console.log("node-machine-id not found"); }
-
+            
             isElectron = true;
         }
     } catch (e) {
@@ -357,7 +343,7 @@
     const loginBtn = document.getElementById('login-btn');
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
-
+    
     // PENGATURAN DOMAIN DAN IP UNTUK AKSES
     const API_DOMAIN = 'irlsystem.ddns.net'; // Untuk Web & HTTPS
     const STREAM_IP = '103.171.84.156';      // Untuk SRT, RTMP, Radar (9988)
@@ -375,30 +361,20 @@
         } else {
             toast.style.boxShadow = '0 10px 15px -3px rgba(16, 185, 129, 0.2)';
         }
-
+        
         toast.innerHTML = `<span class="font-bold">${isSuccess ? 'Berhasil:' : 'Info:'}</span> ${message}`;
         container.appendChild(toast);
 
         setTimeout(() => {
             if (container.contains(toast)) container.removeChild(toast);
-        }, 5000); 
+        }, 5000); // 5 seconds for notifications
     }
 
     function openSubtitleControl() {
-        const tier = localStorage.getItem('irl_tier') || 'basic';
-        if (tier.toLowerCase() !== 'pro') {
-            Swal.fire({
-                title: 'Fitur Khusus Paket PRO',
-                text: 'Subtitle Panel hanya tersedia untuk pengguna Paket PRO.',
-                icon: 'warning',
-                confirmButtonColor: '#4f46e5'
-            });
-            return;
-        }
-
         const streamId = localStorage.getItem('irl_user') || 'apin';
+        // URL diarahkan ke Server Localhost 5050 yang nyala dari main.js
         const url = `http://localhost:5050/subtitle.html?mode=control&id=${streamId}`;
-
+        
         if (isElectron && shell) {
             shell.openExternal(url);
         } else {
@@ -409,10 +385,10 @@
     window.addEventListener('DOMContentLoaded', () => {
         const savedUser = localStorage.getItem('irl_user');
         const savedPass = localStorage.getItem('irl_pass');
-
+        
         if (savedUser) document.getElementById('username').value = savedUser;
         if (savedPass) document.getElementById('password').value = savedPass;
-
+        
         if (savedUser) {
             setTimeout(() => { loginBtn.click(); }, 100);
         }
@@ -421,12 +397,12 @@
     loginBtn.addEventListener('click', async () => {
       const usernameVal = document.getElementById('username').value || 'apin';
       const passwordVal = document.getElementById('password').value || 'admin';
-
+      
       loginBtn.innerHTML = `<span class="animate-pulse">Menyambungkan...</span>`;
       loginBtn.disabled = true;
       loginBtn.classList.add('opacity-80', 'cursor-not-allowed');
 
-      // Bypass API Login
+      // Jika berjalan di browser (Bypass API Login)
       if(!isElectron) {
           setTimeout(() => {
               localStorage.setItem('irl_user', usernameVal);
@@ -435,24 +411,24 @@
 
               document.getElementById('dash-username').innerText = usernameVal;
               setupCameraUI();
-
+              
               loginView.classList.add('hidden');
               dashboardView.classList.remove('hidden');
               dashboardView.classList.add('fade-in');
 
               Swal.fire({
                 title: 'Bypass Mode',
-                html: `Login via Browser: <b>${usernameVal}</b><br><br><span style="color: #6366f1; font-size: 11px; font-weight: bold; letter-spacing: 1px;">SOFTWARE VERSION ${APP_VERSION}</span>`,
+                text: `Login via Browser: ${usernameVal}`,
                 icon: 'success',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 1500
               });
               resetLoginBtn();
           }, 500);
           return;
       }
 
-      // Logic Asli Electron
+      // Logic Asli Electron (FETCH KE HTTPS API_DOMAIN)
       try {
         const response = await fetch(`https://${API_DOMAIN}/api/license/verify`, {
           method: 'POST',
@@ -477,10 +453,10 @@
 
           Swal.fire({
             title: 'Active License',
-            html: `Lisensi (<b>${(data.tier||'basic').toUpperCase()}</b>) aktif hingga:<br>${new Date(data.expiredAt).toLocaleDateString('id-ID')}<br><br><span style="color: #6366f1; font-size: 11px; font-weight: bold; letter-spacing: 1px; border-top: 1px solid #27272a; padding-top: 8px; display: inline-block;">SOFTWARE VERSION ${APP_VERSION}</span>`,
+            text: `Lisensi (${(data.tier||'basic').toUpperCase()}) aktif hingga: ${new Date(data.expiredAt).toLocaleDateString('id-ID')}`,
             icon: 'success',
             showConfirmButton: false,
-            timer: 2500
+            timer: 2000
           });
 
           if (radarInterval) clearInterval(radarInterval);
@@ -488,18 +464,19 @@
             try {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => controller.abort(), 1500);
-
+              
+              // RADAR MENGGUNAKAN IP ASLI AGAR TIDAK DIBLOKIR DNS/PROXY
               const res = await fetch(`http://${STREAM_IP}:9988/v3/paths/list`, { cache: 'no-store', signal: controller.signal });
               clearTimeout(timeoutId);
 
               if (!res.ok) { updateRadarStatus(false, "API Ditolak"); return; }
               const rData = await res.json();
-
+              
               let suffix = currentActiveCam === 1 ? "" : `_cam${currentActiveCam}`;
               let targetStreamName = `${usernameVal}${suffix}`;
-
+              
               const liveStream = rData.items ? rData.items.find(item => (item.name === targetStreamName || item.name === `live/${targetStreamName}`) && item.ready === true) : null;
-
+              
               if (liveStream) {
                 let jalur = liveStream.source && liveStream.source.type === 'srtConn' ? 'SRT' : 'RTMP';
                 updateRadarStatus(true, `Menerima Cam ${currentActiveCam} via ${jalur}`);
@@ -553,7 +530,6 @@
       const badge = document.getElementById('tier-badge');
       const tab2 = document.getElementById('tabCam2');
       const tab3 = document.getElementById('tabCam3');
-      const subtitleLockIcon = document.getElementById('subtitle-lock-icon');
 
       if (tier === 'pro' || maxCams === 3) {
         badge.innerText = "PRO";
@@ -562,7 +538,6 @@
         tab3.innerText = "Cam 3";
         tab2.style.opacity = "1";
         tab3.style.opacity = "1";
-        if (subtitleLockIcon) subtitleLockIcon.classList.add('hidden');
       } else {
         badge.innerText = "BASIC";
         badge.className = "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide bg-zinc-800 text-zinc-400 border border-zinc-700";
@@ -570,7 +545,6 @@
         tab3.innerText = "Cam 3 🔒";
         tab2.style.opacity = "0.5";
         tab3.style.opacity = "0.5";
-        if (subtitleLockIcon) subtitleLockIcon.classList.remove('hidden');
       }
       switchCamTab(1);
     }
@@ -605,15 +579,15 @@
       const finalStreamID = `${username}${streamSuffix}`;
 
       // SET LINK KAMERA INPUT & OBS
+      // SRT dan RTMP pakai STREAM_IP agar tidak nyangkut proxy/DNS
       document.getElementById('link-kamera-srt').value = `srt://${STREAM_IP}:8890`;
       document.getElementById('stream-id-display').value = `publish:${finalStreamID}`;
       document.getElementById('link-kamera-rtmp').value = `rtmp://${STREAM_IP}:1935/live/${finalStreamID}`;
       document.getElementById('link-obs-srt').value = `srt://${STREAM_IP}:8890?streamid=read:${finalStreamID}`;
       document.getElementById('link-obs-rtmp').value = `rtmp://${STREAM_IP}:1935/live/${finalStreamID}`;
-
-      // TTLS Links (Hanya 2 link)
-      document.getElementById('link-ttls-video-only').value = `http://${API_DOMAIN}:5000/player.html?id=${finalStreamID}`;
-      document.getElementById('link-ttls-rtmp').value = `http://${API_DOMAIN}:5000/player.html?id=/live/${finalStreamID}`;
+      
+      // TTLS pakai HTTPS (API_DOMAIN)
+      document.getElementById('link-ttls-video-only').value = `https://${API_DOMAIN}/player.html?id=${finalStreamID}`;
     }
 
     function updateRadarStatus(connected, subMessage = "") {
@@ -645,16 +619,21 @@
     async function salinTeks(elementId) {
       const copyText = document.getElementById(elementId);
       if (copyText.value.includes("🔒")) return;
-
+      
       try {
           const teksInfo = copyText.value;
-
+          
+          // 1. Prioritas Utama: Pakai Clipboard bawaan Electron (Paling Ampuh di Desktop)
           if (isElectron) {
               const { clipboard } = require('electron');
               clipboard.writeText(teksInfo);
-          } else if (navigator.clipboard && window.isSecureContext) {
+          } 
+          // 2. Alternatif: Browser Clipboard API
+          else if (navigator.clipboard && window.isSecureContext) {
               await navigator.clipboard.writeText(teksInfo);
-          } else {
+          } 
+          // 3. Jurus Terakhir: Hack ExecCommand (Kalau jalan di Web / Browser HTTP biasa)
+          else {
               const textArea = document.createElement("textarea");
               textArea.value = teksInfo;
               textArea.style.position = "fixed";
@@ -665,29 +644,21 @@
               document.execCommand('copy');
               document.body.removeChild(textArea);
           }
-
+          
           const btn = copyText.nextElementSibling;
           const teksAsli = btn.innerText;
           btn.innerText = "Copied!";
-          
-          btn.classList.remove(
-            "bg-white/5", "hover:bg-white/10", "text-zinc-300", "border-zinc-800",
-            "bg-brand-600/20", "hover:bg-brand-600/40", "text-brand-300", "border-brand-500/30",
-            "bg-brand-600", "hover:bg-brand-500", "text-emerald-400", "bg-emerald-500/10", 
-            "border-emerald-500/30", "bg-zinc-800", "hover:bg-zinc-700", "border-zinc-700",
-            "shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-          );
-
           btn.classList.add("bg-emerald-500", "text-white", "border-emerald-400");
-
+          btn.classList.remove("bg-white/5", "hover:bg-white/10", "text-zinc-300", "border-zinc-800", "bg-brand-600/20", "text-brand-300", "border-brand-500/30", "bg-brand-600", "hover:bg-brand-500", "text-emerald-400", "bg-emerald-500/10", "border-emerald-500/30");
+          
           setTimeout(() => { 
             btn.innerText = teksAsli; 
             btn.classList.remove("bg-emerald-500", "text-white", "border-emerald-400"); 
-
-            if(elementId.includes('ttls')) {
-              btn.classList.add("bg-brand-600", "hover:bg-brand-500", "text-white", "shadow-[0_0_15px_rgba(99,102,241,0.3)]");
-            } else if (elementId.includes('obs')) { 
-              btn.classList.add("bg-brand-600/20", "hover:bg-brand-600/40", "text-brand-300", "border-brand-500/30"); 
+            
+            if(elementId === 'link-ttls-video-only') {
+              btn.classList.add("bg-brand-600", "hover:bg-brand-500", "text-white");
+            } else if(elementId.includes('obs')) { 
+              btn.classList.add("bg-brand-600/20", "text-brand-300", "border-brand-500/30"); 
             } else { 
               btn.classList.add("bg-white/5", "hover:bg-white/10", "text-zinc-300", "border-zinc-800"); 
             }
@@ -699,22 +670,22 @@
 
     const toggleUrlBtn = document.getElementById('toggle-url-btn');
     if (toggleUrlBtn) {
-      const inputsIds = ['stream-id-display', 'link-kamera-srt', 'link-kamera-rtmp', 'link-obs-srt', 'link-obs-rtmp', 'link-ttls-video-only', 'link-ttls-rtmp'];
-
+      const inputsIds = ['stream-id-display', 'link-kamera-srt', 'link-kamera-rtmp', 'link-obs-srt', 'link-obs-rtmp', 'link-ttls-video-only'];
+      
       inputsIds.forEach(id => {
           const el = document.getElementById(id);
           if(el) el.type = 'password';
       });
-
+      
       toggleUrlBtn.addEventListener('click', () => {
         const inputSrt = document.getElementById('link-kamera-srt');
         const isHidden = inputSrt.type === 'password';
-
+        
         inputsIds.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.type = isHidden ? 'text' : 'password';
         });
-
+        
         toggleUrlBtn.innerText = isHidden ? 'Hide URLs' : 'Show URLs';
       });
     }
@@ -729,15 +700,13 @@
         title: 'Cara Pakai di TikTok Live Studio',
         html: `
           <div class="text-left text-xs text-zinc-300 space-y-3 mt-2 leading-relaxed">
-            <p><strong>Metode 1 (WebRTC):</strong></p>
-            <p>1. Buka TikTok Live Studio &rarr; Tambah Sumber (+) &rarr; <strong>Tautan (URL Source)</strong>.</p>
-            <p>2. Paste link WebRTC dari panel ini.</p>
-            <hr class="border-zinc-700 my-2">
-            <p><strong>Metode 2 (Jaringan / Network Stream):</strong></p>
-            <p>1. Di TTLS &rarr; Tambah Sumber (+) &rarr; <strong>Capture Card / Cast to PC / Network</strong> (Pilih RTMP).</p>
-            <p>2. Paste link RTMP yang tersedia.</p>
+            <p>1. Buka aplikasi <strong>TikTok Live Studio</strong> di PC Anda.</p>
+            <p>2. Klik tombol <strong>Tambah Sumber (+) / Add Source</strong>.</p>
+            <p>3. Pilih menu <strong>Tautan (atau Link / URL Source)</strong>.</p>
+            <p>4. Klik tombol <strong class="text-brand-400">Copy Link</strong> pada aplikasi ini, lalu paste ke kolom URL di TTLS.</p>
+            <p>5. Klik <strong>Tambahkan / Add</strong>.</p>
             <div class="p-2.5 bg-brand-500/10 border border-brand-500/20 rounded-lg text-brand-300 mt-3">
-              Gunakan RTMP jika Anda ingin stabilitas lebih dari WebRTC.
+              <strong>Selesai!</strong> Video dari kamera HP Anda akan langsung muncul tanpa delay.
             </div>
           </div>
         `,
@@ -748,22 +717,25 @@
     }
 
     // =========================================================================
-    // FITUR UPDATE SILUMAN (BACKGROUND) DENGAN INFO VERSI
+    // FITUR UPDATE SILUMAN (BACKGROUND) - Tanpa memblokir layar klien
     // =========================================================================
     if (isElectron && ipcRenderer) {
         ipcRenderer.on('update-status', (event, data) => {
-          // Tangkap nomor versi jika ada, bentuk formatnya (misal: v1.1.0)
-          const versiTeks = data.version ? ` (v${data.version})` : '';
-
           if (data.status === 'available') {
-            showToast(`Update baru${versiTeks} tersedia! Sedang mengunduh di latar belakang...`, true);
+            // Beritahu klien sekilas tanpa memblokir layar
+            showToast('Update available; it will download automatically.', true);
           } else if (data.status === 'downloaded') {
-            showToast(`Update${versiTeks} siap! Akan otomatis dipasang saat aplikasi direstart.`, true);
+            // Beritahu klien bahwa pembaruan sudah siap dipasang nanti
+            showToast('Update downloaded; it will be installed when you restart the app.', true);
           }
         });
 
-        ipcRenderer.on('update-progress', (event, percent) => {});
+        // Kosongkan fungsi progress bar agar tidak ada indikator loading di layar
+        ipcRenderer.on('update-progress', (event, percent) => {
+            // Dikosongkan (Siluman)
+        });
 
+        // Sembunyikan error update agar klien tidak panik jika internet mereka putus sebentar
         ipcRenderer.on('update-error', (event, message) => {
           console.warn('Update latar belakang gagal:', message);
         });
