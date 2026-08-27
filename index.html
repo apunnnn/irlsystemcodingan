@@ -248,7 +248,7 @@
                     <div class="space-y-5">
                         <!-- Tautan Tampilan WebRTC Default -->
                         <div>
-                            <label class="block text-[11px] font-medium text-brand-400 mb-1.5 uppercase tracking-wider">Tautan WebRTC (Add Tautan)</label>
+                            <label class="block text-[11px] font-medium text-brand-400 mb-1.5 uppercase tracking-wider">Tautan SRT</label>
                             <div class="flex group">
                                 <input type="text" id="link-ttls-video-only" readonly class="w-full bg-dark-900 border border-zinc-800 border-r-0 rounded-l-xl px-4 py-3 text-sm text-white font-mono focus:outline-none group-hover:border-zinc-700 transition-colors">
                                 <button onclick="salinTeks('link-ttls-video-only')" class="bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-r-xl px-6 text-sm transition-all shadow-[0_0_15px_rgba(99,102,241,0.3)] whitespace-nowrap">Copy Link</button>
@@ -257,7 +257,7 @@
 
                         <!-- Tautan RTMP Network Mode -->
                         <div>
-                            <label class="block text-[11px] font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Tautan RTMP (Add Network/Jaringan)</label>
+                            <label class="block text-[11px] font-medium text-zinc-400 mb-1.5 uppercase tracking-wider">Tautan RTMP</label>
                             <div class="flex group">
                                 <input type="text" id="link-ttls-rtmp" readonly class="w-full bg-dark-900 border border-zinc-800 border-r-0 rounded-l-xl px-4 py-3 text-sm text-zinc-300 font-mono focus:outline-none group-hover:border-zinc-700 transition-colors">
                                 <button onclick="salinTeks('link-ttls-rtmp')" class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-r-xl px-6 text-sm transition-all whitespace-nowrap border border-zinc-700 border-l-0">Copy</button>
@@ -328,7 +328,7 @@
     </div>
 
 <script>
-    const APP_VERSION = "v2.1.9";
+    const APP_VERSION = "v2.2.0";
 
     let ipcRenderer = null;
     let shell = null;
@@ -601,7 +601,7 @@
 
       // TTLS Links
       document.getElementById('link-ttls-video-only').value = `http://${API_DOMAIN}:5000/player.html?id=${finalStreamID}`;
-      document.getElementById('link-ttls-rtmp').value = `http://${API_DOMAIN}:5000/player.html?id=/live/${finalStreamID}`;
+      document.getElementById('link-ttls-rtmp').value = `http://${API_DOMAIN}:5000/player.html?id=live/${finalStreamID}`;
     }
 
     function updateRadarStatus(connected, subMessage = "") {
