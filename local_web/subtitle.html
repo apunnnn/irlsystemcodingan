@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IRL Subtitle Pro - Dashboard</title>
     
+    <!-- Script Deteksi Awal OBS Transparan -->
+    <script>
+        if (new URLSearchParams(window.location.search).get('mode') === 'obs') {
+            document.documentElement.style.background = 'transparent';
+        }
+    </script>
+
     <!-- Font & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Bebas+Neue&family=Caveat:wght@400;700&family=Cinzel:wght@400;700;900&family=Fredoka:wght@700&family=Inter:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Kanit:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Montserrat:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Oswald:wght@400;700&family=Pacifico&family=Permanent+Marker&family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Press+Start+2P&family=Righteous&family=Roboto:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Space+Grotesk:wght@400;700&family=Syne:wght@400;700;800&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -48,12 +55,25 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #27272a; border-radius: 2px; }
 
         /* ==========================================
-           DYNAMIC LAYOUT CSS (BENTUK VISUAL TEKS)
+           DYNAMIC LAYOUT CSS & AUTO-HIDE ENGINE
         ========================================== */
         
-        .obs-mode { background-color: transparent !important; overflow: hidden; }
-        .subtitle-text { transition: opacity 0.3s ease-out; opacity: 0; line-height: 1.4; }
-        .subtitle-show { opacity: 1 !important; }
+        .obs-mode { background-color: transparent !important; background: transparent !important; overflow: hidden; }
+        
+        /* Subtitle Text dengan Transisi Lembut */
+        .subtitle-text { 
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); 
+            opacity: 0 !important; 
+            transform: scale(0.96) translateY(5px);
+            line-height: 1.4; 
+            pointer-events: none;
+        }
+
+        /* Kelas Saat Muncul */
+        .subtitle-text.active { 
+            opacity: 1 !important; 
+            transform: scale(1) translateY(0);
+        }
 
         /* 1. AESTHETIC VLOG STICKER */
         .layout-sticker { top: 50% !important; transform: translateY(-50%); display: flex; justify-content: center; width: 100%; }
@@ -185,10 +205,9 @@
         .bg-glow { position: fixed; top: -20%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
     </style>
 </head>
-<body class="bg-dark-900 text-zinc-300 min-h-screen selection:bg-brand-500/30">
+<body id="pageBody" class="bg-dark-900 text-zinc-300 min-h-screen selection:bg-brand-500/30">
 
     <div class="bg-glow" id="bgGlow"></div>
-
     <!-- ==========================================
          MODE 1: CONTROL PANEL
     =========================================== -->
@@ -423,7 +442,7 @@
                         
                         <div id="previewScaler" class="absolute origin-center w-[1920px] h-[1080px] pointer-events-none border-dashed border border-zinc-700/30 z-10">
                             <div id="subtitleBox" class="absolute w-full px-10 flex justify-center transition-all duration-300" style="top: 85%;">
-                                <div id="subtitleText" class="subtitle-text subtitle-show"></div>
+                                <div id="subtitleText" class="subtitle-text"></div>
                             </div>
                         </div>
                     </div>
@@ -460,6 +479,7 @@
         </div>
     </div>
 
+    <div id="customToast" class="fixed bottom-6 right-6 hidden bg-zinc-900 border border-zinc-700 text-white px-4 py-3 rounded-xl shadow-2xl z-[200] text-xs font-medium flex items-center gap-2"></div>
     <!-- ==========================================
          JAVASCRIPT LOGIC (DYNAMIC LAYOUT ENGINE)
     =========================================== -->
@@ -471,7 +491,36 @@
         const socket = io();
         
         let obsSettings = { autoHide: 3, maxWords: 15, align: 'center', layout: 'subtitle' };
-        let hideTimeout;
+
+        // Helper Auto Hide yang Pasti Berfungsi
+        function triggerAutoHide(element, seconds) {
+            if (!element) return;
+
+            // Aktifkan tampilan teks
+            element.classList.add('active');
+
+            // Hapus timer sebelumnya agar tidak bentrok
+            if (element._hideTimer) {
+                clearTimeout(element._hideTimer);
+                element._hideTimer = null;
+            }
+
+            const sec = parseFloat(seconds);
+            if (sec > 0) {
+                element._hideTimer = setTimeout(() => {
+                    element.classList.remove('active');
+                }, sec * 1000);
+            }
+        }
+
+        function showMessage(msg, isError = false) {
+            const toast = document.getElementById('customToast');
+            if (!toast) return;
+            toast.className = `fixed bottom-6 right-6 bg-zinc-900 border ${isError ? 'border-rose-500 text-rose-300' : 'border-emerald-500 text-emerald-300'} px-4 py-3 rounded-xl shadow-2xl z-[200] text-xs font-medium flex items-center gap-2`;
+            toast.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i> <span>${msg}</span>`;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
 
         function resizePreviewArea() {
             if (mode === 'obs') return;
@@ -554,7 +603,7 @@
                 container.style.setProperty('--highlight-color', tStroke);
             }
 
-            container.className = 'subtitle-text subtitle-show';
+            container.className = 'subtitle-text active';
             container.style.color = tColor; 
             container.style.fontSize = (s.size * 1.5) + 'px'; 
             
@@ -770,14 +819,17 @@
                 }
             }
         }
-
         // ==========================================
         // LOGIKA OBS LAYAR TRANSPARAN
         // ==========================================
         if (mode === 'obs') {
-            // HAPUS BACKGROUND HITAM SAAT MASUK OBS (AGAR TRANSPARAN)
-            document.body.classList.remove('bg-dark-900');
-            document.body.style.backgroundColor = 'transparent';
+            // HAPUS BACKGROUND HITAM SAAT MASUK OBS
+            const pageBody = document.getElementById('pageBody');
+            if (pageBody) {
+                pageBody.className = 'obs-mode';
+                pageBody.style.backgroundColor = 'transparent';
+                pageBody.style.background = 'transparent';
+            }
 
             const cp = document.getElementById('controlPanel');
             if (cp) cp.remove();
@@ -794,11 +846,12 @@
             socket.on('new_transcription', (data) => {
                 let text = data.text;
                 renderDynamicLayout(subtitleText, subtitleBox, text, obsSettings);
-                
-                subtitleText.style.opacity = 1;
-                clearTimeout(hideTimeout);
-                if (obsSettings.autoHide > 0) {
-                    hideTimeout = setTimeout(() => { subtitleText.style.opacity = 0; }, obsSettings.autoHide * 1000);
+                triggerAutoHide(subtitleText, obsSettings.autoHide);
+            });
+
+            socket.on('clear_text', () => {
+                if (subtitleText) {
+                    subtitleText.classList.remove('active');
                 }
             });
 
@@ -814,9 +867,7 @@
                 renderDynamicLayout(subtitleText, subtitleBox, currentText, s);
 
                 if (currentText !== '') {
-                    subtitleText.style.opacity = 1;
-                    clearTimeout(hideTimeout);
-                    if (s.autoHide > 0) hideTimeout = setTimeout(() => { subtitleText.style.opacity = 0; }, s.autoHide * 1000);
+                    triggerAutoHide(subtitleText, s.autoHide);
                 }
             });
         } 
@@ -833,11 +884,21 @@
 
             window.copyObsUrl = function() {
                 const obsUrl = `${window.location.origin}${window.location.pathname}?mode=obs&id=${streamId}`;
-                navigator.clipboard.writeText(obsUrl).then(() => {
-                    const btn = document.getElementById('btnCopyObs');
-                    btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Copied!`;
-                    setTimeout(() => { btn.innerHTML = `<i class="fa-solid fa-copy text-brand-400"></i> Copy URL OBS`; }, 2000);
-                });
+                
+                // Fallback copy aman
+                const textArea = document.createElement("textarea");
+                textArea.value = obsUrl;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                const btn = document.getElementById('btnCopyObs');
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Copied!`;
+                setTimeout(() => { btn.innerHTML = `<i class="fa-solid fa-copy text-brand-400"></i> Copy URL OBS`; }, 2000);
             };
 
             window.setAlign = function(alignVal) {
@@ -905,11 +966,7 @@
                 const preBox = document.getElementById('subtitleBox');
                 if (preText && preBox) {
                     renderDynamicLayout(preText, preBox, "Coba test gaya keren", s);
-                    preText.style.opacity = 1;
-                    clearTimeout(hideTimeout);
-                    if (s.autoHide > 0) {
-                        hideTimeout = setTimeout(() => { preText.style.opacity = 0; }, s.autoHide * 1000);
-                    }
+                    triggerAutoHide(preText, s.autoHide);
                 }
             };
 
@@ -922,7 +979,7 @@
 
             window.toggleMic = function() {
                 if (!recognition) {
-                    alert("⚠️ Browser Anda tidak mendukung Web Speech API!\n\nSolusi: Gunakan Google Chrome versi terbaru di PC/Laptop.");
+                    showMessage("Browser tidak mendukung Web Speech API. Gunakan Chrome versi terbaru.", true);
                     return;
                 }
                 
@@ -951,7 +1008,7 @@
                 } catch(err) {
                     console.error("Gagal toggle Mic:", err);
                     isListening = false;
-                    alert("Gagal mengakses mikrofon.\n\nDetail: " + err.message);
+                    showMessage("Gagal mengakses mikrofon: " + err.message, true);
                 }
             };
 
@@ -1009,11 +1066,7 @@
                     
                     if (preText && preBox) {
                         renderDynamicLayout(preText, preBox, text, obsSettings);
-                        preText.style.opacity = 1;
-                        clearTimeout(hideTimeout);
-                        if (obsSettings.autoHide > 0) {
-                            hideTimeout = setTimeout(() => { preText.style.opacity = 0; }, obsSettings.autoHide * 1000);
-                        }
+                        triggerAutoHide(preText, obsSettings.autoHide);
                     }
 
                     socket.emit('send_transcription', { streamId: streamId, text: text });
@@ -1025,7 +1078,7 @@
 
                 recognition.onerror = (event) => {
                     if (event.error === 'not-allowed') {
-                        alert("Izin mic ditolak! Cek ikon gembok di URL bar atas dan pastikan izinkan Mikrofon.");
+                        showMessage("Izin mic ditolak! Cek izin mikrofon di browser.", true);
                         if (isListening) toggleMic(); 
                     } 
                 };
